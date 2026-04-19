@@ -1,0 +1,198 @@
+import React from 'react';
+import { ActivityIndicator } from 'react-native';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { usePathname } from 'expo-router';
+import { View, Text, XStack, YStack as TamaguiYStack, Circle, useTheme } from 'tamagui';
+import Animated, { withTiming, LinearTransition } from 'react-native-reanimated';
+import { Clock, Layers2, MessageCircle, MonitorSmartphone, TerminalSquare } from '@tamagui/lucide-icons';
+
+interface CustomTabBarProps extends BottomTabBarProps {}
+
+const EnteringHeight = (targetValues: any) => {
+  'worklet';
+  return {
+    initialValues: { height: 0 },
+    animations: { height: withTiming(targetValues.targetHeight, { duration: 300 }) },
+  };
+};
+
+const ExitingHeight = (values: any) => {
+  'worklet';
+  return {
+    initialValues: { height: values.currentHeight },
+    animations: { height: withTiming(0, { duration: 300 }) },
+  };
+};
+
+const AnimatedYStack = Animated.createAnimatedComponent(TamaguiYStack);
+
+const TabItem = ({
+  label,
+  icon,
+  activeIcon,
+  isActive,
+  onPress,
+  badgeCount,
+  isLoading,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  activeIcon: React.ReactNode;
+  isActive: boolean;
+  onPress: () => void;
+  badgeCount?: number;
+  isLoading?: boolean;
+}) => {
+  const theme = useTheme({ inverse: false });
+  // const iconColor = isActive ? theme.accent6.val : theme.color8.val;
+
+  return (
+    <AnimatedYStack
+      layout={LinearTransition.duration(300)}
+      flex={1}
+      items="center"
+      justify="center"
+      py="$3"
+      gap={4}
+      pressStyle={{ opacity: 0.7 }}
+      onPress={onPress}
+      position="relative">
+      <View position="relative">
+        {isActive ? activeIcon : icon}
+
+        {/* Badge Indicator */}
+        {badgeCount !== undefined && badgeCount > 0 && (
+          <Circle
+            position="absolute"
+            t={-4}
+            r={-8}
+            size={18}
+            bg="$red6"
+            items="center"
+            justify="center"
+            z={10}>
+            <Text color="white" fontWeight="500" fontSize="$1">
+              {badgeCount}
+            </Text>
+          </Circle>
+        )}
+
+        {/* Loading Indicator */}
+        {isLoading && (
+          <Circle
+            position="absolute"
+            t={-8}
+            r={-8}
+            size={24}
+            bg="$background"
+            opacity={0.9}
+            items="center"
+            justify="center"
+            z={10}
+            scale={0.75}>
+            <ActivityIndicator size="small" color={String(theme.color8.get())} />
+          </Circle>
+        )}
+      </View>
+
+      {isActive && (
+        <Animated.View
+          entering={EnteringHeight}
+          exiting={ExitingHeight}
+          style={{ overflow: 'hidden' }}>
+          <Text
+            fontSize={11}
+            fontWeight={isActive ? '400' : '300'}
+            color={isActive ? '$color' : '$color8'}
+            numberOfLines={1}
+            style={{
+              alignSelf: 'center',
+              textAlign: 'center',
+            }}>
+            {label}
+          </Text>
+        </Animated.View>
+      )}
+    </AnimatedYStack>
+  );
+};
+
+const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
+  const pathname = usePathname();
+  const insets = useSafeAreaInsets();
+
+  const getActiveTab = () => {
+    const pathToTab = {
+      '/tabs/devices': 'devices',
+      '/tabs/crons': 'crons',
+      '/tabs/shell': 'shell',
+      '/tabs/appstatus': 'appstatus',
+      '/tabs/message': 'message',
+    } as const;
+    return pathToTab[pathname as keyof typeof pathToTab] || state.routeNames[state.index];
+  };
+
+  const activeTab = getActiveTab();
+  const handleTabPress = (tabName: string) => {
+    const routeName = tabName === 'devices' ? 'devices' : tabName;
+    const tabIndex = state.routes.findIndex((route) => route.name === routeName);
+    if (tabIndex !== -1) {
+      navigation.navigate(state.routes[tabIndex].name);
+    }
+  };
+
+  return (
+    <XStack
+      bg="$background"
+      borderTopWidth={1}
+      borderTopColor={'$color3'}
+      pb={insets.bottom > 0 ? insets.bottom : '$4'}
+      items="center"
+      justify="space-between"
+      px="$1.5"
+      elevation="$2">
+      <TabItem
+        label="Devices"
+        icon={<MonitorSmartphone strokeWidth={1.3} />}
+        activeIcon={<MonitorSmartphone />}
+        isActive={activeTab === 'devices'}
+        onPress={() => handleTabPress('devices')}
+      />
+
+      <TabItem
+        label="Crons"
+        icon={<Clock strokeWidth={1.3} />}
+        activeIcon={<Clock />}
+        isActive={activeTab === 'crons'}
+        onPress={() => handleTabPress('crons')}
+      />
+
+      <TabItem
+        label="Shell"
+        icon={<TerminalSquare strokeWidth={1.3} />}
+        activeIcon={<TerminalSquare />}
+        isActive={activeTab === 'shell'}
+        onPress={() => handleTabPress('shell')}
+      />
+
+      <TabItem
+        label="App Status"
+        icon={<Layers2 strokeWidth={1.3} />}
+        activeIcon={<Layers2 />}
+        isActive={activeTab === 'appstatus'}
+        onPress={() => handleTabPress('appstatus')}
+      />
+
+      <TabItem
+        label="Message"
+        icon={<MessageCircle strokeWidth={1.3} />}
+        activeIcon={<MessageCircle />}
+        isActive={activeTab === 'message'}
+        onPress={() => handleTabPress('message')}
+      />
+    </XStack>
+  );
+};
+
+export default CustomTabBar;

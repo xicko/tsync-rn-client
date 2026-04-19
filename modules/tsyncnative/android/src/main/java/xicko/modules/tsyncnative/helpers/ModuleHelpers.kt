@@ -1,0 +1,126 @@
+package xicko.modules.tsyncnative.helpers
+
+import android.content.Context
+import android.content.Intent
+import android.os.PowerManager
+import android.provider.Settings
+import android.util.Log
+import androidx.core.net.toUri
+import com.topjohnwu.superuser.Shell
+import xicko.modules.tsyncnative.BuildConfig
+
+fun isIgnoringBatteryOptimizations(context: Context): Boolean {
+    val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+    return pm?.isIgnoringBatteryOptimizations(context.packageName) == true
+}
+
+fun disableBatteryOptimizations(context: Context, packageName: String? = null) {
+    val pn = packageName ?: context.packageName
+    val data = "package:$pn".toUri()
+    val intent = Intent().setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setData(data)
+
+    context.startActivity(intent)
+}
+
+fun openTS(context: Context): Unit {
+    val packageName = "com.tailscale.ipn"
+    val packageManager = context.packageManager
+
+    val intent = packageManager.getLaunchIntentForPackage(packageName)
+    intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+    intent?.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+    intent?.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+
+    context.startActivity(intent)
+}
+
+fun connectTS(context: Context): Unit {
+    val packageName = "com.tailscale.ipn"
+    val actionName = "com.tailscale.ipn.CONNECT_VPN"
+
+    val intent = Intent(actionName)
+        .setPackage(packageName)
+
+    context.sendBroadcast(intent)
+}
+
+fun disconnectTS(context: Context): Unit {
+    val packageName = "com.tailscale.ipn"
+    val actionName = "com.tailscale.ipn.DISCONNECT_VPN"
+
+    val intent = Intent(actionName)
+        .setPackage(packageName)
+
+    context.sendBroadcast(intent)
+}
+
+fun getShell(): Shell {
+    return Shell.getCachedShell() ?: Shell.getShell()
+}
+
+fun isRooted(): Boolean {
+    val shell = getShell()
+
+    Log.i("isRoot shell", "${shell.isRoot}")
+
+    return shell.isRoot && Shell.isAppGrantedRoot() == true
+}
+
+fun openTSRoot() {
+    val task = Shell.cmd("su -c am start -n com.tailscale.ipn/.MainActivity")
+
+    task.enqueue()
+}
+
+fun connectTSRoot() {
+    val task = Shell.cmd("""
+        su -c am start -n com.tailscale.ipn/.MainActivity
+        
+        sleep 3
+        
+        su -c am broadcast -a com.tailscale.ipn.CONNECT_VPN -n com.tailscale.ipn/.MainActivity
+        
+        sleep 2
+        
+        su -c am start -n com.xicko.tsync/.MainActivity
+    """.trimIndent())
+
+    task.enqueue()
+}
+
+fun disableOptimizationsRoot(context: Context, packageName: String?): Boolean {
+    val pn = packageName ?: context.packageName
+
+    if (pn == "") return false
+
+    val cmd = Shell.cmd("""
+        su -c dumpsys deviceidle whitelist +$pn
+        
+        su -c cmd appops set $pn RUN_ANY_IN_BACKGROUND allow
+        
+        su -c cmd appops set $pn RUN_IN_BACKGROUND allow
+        
+        su -c am set-standby-bucket $pn active
+    """.trimIndent())
+
+    cmd.enqueue()
+
+    return true
+}
+
+fun blockNotificationsRoot(context: Context, packageName: String?): Boolean {
+    val pn = packageName ?: context.packageName
+
+    if (pn == "") return false
+
+    val cmd = Shell.cmd("""
+        su -c appops set $pn POST_NOTIFICATION ignore
+    """.trimIndent())
+
+    cmd.enqueue()
+
+    return true
+}
