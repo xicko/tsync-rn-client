@@ -82,7 +82,9 @@ const DeviceControlSheet: React.FC<SheetProps<'device-control-sheet'>> = ({ shee
         payload: {
           selectedDeviceId: device.id,
           onSelect: async (identifier: string | null) => {
-            const res = await setAdbDeviceIdentifier(device.id, identifier);
+            // only send port
+            const selectedPort = identifier ? identifier.split(':')[1] : null;
+            const res = await setAdbDeviceIdentifier(device.id, selectedPort);
 
             if (res) {
               showToast({
@@ -165,7 +167,15 @@ const DeviceControlSheet: React.FC<SheetProps<'device-control-sheet'>> = ({ shee
             </Text>
 
             {device.os === 'android' && (
-              <Text>ADB identifier: {device.adbIdentifier || 'Not set'}</Text>
+              <Text>
+                ADB identifier:{' '}
+                {(() => {
+                  const address = device.addresses[0];
+                  const port = device?.androidConfig?.adb?.port;
+                  if (!address || !port) return 'Not set';
+                  return `${address}:${port}`;
+                })()}
+              </Text>
             )}
           </YStack>
         </XGroup>

@@ -1,9 +1,9 @@
-import { Button, H6, Text, useTheme, View, XStack, YGroup } from 'tamagui';
+import { Button, H6, Text, useTheme, View, XStack, YGroup, Input, XGroup } from 'tamagui';
 import ActionSheet, { ScrollView, SheetManager, SheetProps } from 'react-native-actions-sheet';
 import { useAdbDevices } from '@/hooks/fetch/adb.devices';
-import { HelpCircle, Plug, Wifi, X } from '@tamagui/lucide-icons';
+import { Check, HelpCircle, Plug, Wifi, X } from '@tamagui/lucide-icons';
 import { useDeviceStore } from '@/store/deviceStore';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 const SetAdbDeviceIdentifierSheet: React.FC<SheetProps<'set-adb-device-identifier-sheet'>> = ({
   sheetId,
@@ -11,6 +11,8 @@ const SetAdbDeviceIdentifierSheet: React.FC<SheetProps<'set-adb-device-identifie
 }) => {
   const deviceId = payload?.selectedDeviceId!;
   const theme = useTheme();
+
+  const [input, setInput] = useState<string>('');
 
   const { data: devices } = useAdbDevices();
 
@@ -25,10 +27,33 @@ const SetAdbDeviceIdentifierSheet: React.FC<SheetProps<'set-adb-device-identifie
       id={sheetId}
       gestureEnabled
       containerStyle={{ backgroundColor: theme.background.val }}>
-      <View p={'$4'} gap={'$2'}>
+      <View p={'$4'} gap={'$3'}>
         <View>
           <H6>Set adb device identifier</H6>
         </View>
+
+        <XStack width={'100%'} gap="$3">
+          <Input
+            flex={1}
+            placeholder="ADB Port"
+            keyboardType="numeric"
+            value={input}
+            onChangeText={(text) => {
+              const cleaned = text.replace(/[^0-9]/g, '');
+              setInput(cleaned);
+            }}
+          />
+
+          <Button
+            height={'auto'}
+            icon={Check}
+            onPress={() => {
+              if (!input) return;
+              // IP Address is inferred automatically
+              payload?.onSelect(`:${input}`);
+            }}
+          />
+        </XStack>
 
         <ScrollView style={{ maxHeight: 400, borderRadius: 8, overflow: 'hidden' }}>
           <YGroup gap={'$0.5'}>

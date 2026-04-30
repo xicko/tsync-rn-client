@@ -86,11 +86,22 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
         </XStack>
 
         {item?.os === 'android' && (
-          <InfoChip label="Adb identifier" value={item?.adbIdentifier || 'Not set'} />
+          <InfoChip
+            label="Adb identifier"
+            value={(() => {
+              const address = item.addresses[0];
+              const port = item?.androidConfig?.adb?.port;
+              if (!address || !port) return 'Not set';
+              return `${address}:${port}`;
+            })()}
+          />
         )}
 
         {item?.os === 'windows' && (
-          <InfoChip label="Windows MAC address" value={item?.windowsMacAddress || 'Not set'} />
+          <InfoChip
+            label="Windows MAC address"
+            value={item?.windowsConfig?.macAddress || 'Not set'}
+          />
         )}
 
         {/* Footer flags */}

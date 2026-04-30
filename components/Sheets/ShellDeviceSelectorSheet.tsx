@@ -1,4 +1,5 @@
 import { useDeviceStore } from '@/store/deviceStore';
+import { TailscaleDevice } from '@/types/tailscale.interface';
 import { Check } from '@tamagui/lucide-icons';
 import { useMemo } from 'react';
 import ActionSheet, { SheetProps, ScrollView, SheetManager } from 'react-native-actions-sheet';
@@ -14,10 +15,18 @@ const ShellDeviceSelectorSheet: React.FC<SheetProps<'shell-device-selector-sheet
   const androidDevices = useMemo(
     () =>
       devices.filter(
-        (device) => device.os.toLowerCase() === 'android' && device.adbIdentifier !== undefined
+        (device) =>
+          device.os.toLowerCase() === 'android' && device?.androidConfig?.adb?.port !== undefined
       ),
     [devices]
   );
+
+  const constructAdbAddressText = (device: TailscaleDevice) => {
+    const address = device.addresses[0];
+    const port = device?.androidConfig?.adb?.port;
+    if (!address || !port) return 'Not set';
+    return `${address}:${port}`;
+  };
 
   return (
     <ActionSheet
@@ -45,7 +54,7 @@ const ShellDeviceSelectorSheet: React.FC<SheetProps<'shell-device-selector-sheet
                   <YStack items={'flex-start'}>
                     <H6>{device.name.split('.')[0] || device.name}</H6>
 
-                    <Text>{device.adbIdentifier}</Text>
+                    <Text>{constructAdbAddressText(device)}</Text>
                   </YStack>
 
                   {device.id === payload?.selectedDeviceId && <Check />}
