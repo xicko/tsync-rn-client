@@ -40,7 +40,6 @@ const Message = () => {
         id: thisTailscaleDevice.id,
         name: thisTailscaleDevice.name,
         addresses: thisTailscaleDevice.addresses,
-        adbIdentifier: thisTailscaleDevice.adbIdentifier,
       },
     };
     socket.emit('realtimeNote', JSON.stringify(msg));
