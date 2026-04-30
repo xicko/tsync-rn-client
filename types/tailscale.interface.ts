@@ -93,14 +93,11 @@ export interface TailscaleDevice {
   isHost?: boolean;
   isThisDevice?: boolean;
 
+  battery?: BatteryStatus;
+  
   androidConfig?: {
     adb?: {
       port?: number;
-    };
-    battery?: {
-      level: number;
-      plugged: boolean;
-      timestamp: number;
     };
   };
 
@@ -111,6 +108,12 @@ export interface TailscaleDevice {
 
 export interface TailscaleDevicesResponse {
   devices: TailscaleDevice[];
+}
+
+export interface BatteryStatus {
+  level: number;
+  isPlugged: boolean;
+  timestamp: number;
 }
 
 // ============================================

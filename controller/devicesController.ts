@@ -1,5 +1,5 @@
 import { useZust } from "@/store/store";
-import { TailscaleDevicesResponse } from "@/types/tailscale.interface";
+import { BatteryStatus, TailscaleDevicesResponse } from "@/types/tailscale.interface";
 
 export async function getDevices(): Promise<TailscaleDevicesResponse | null> {
     const domain = useZust.getState().domainAddress;
@@ -58,6 +58,32 @@ export async function setWindowsMacAddress(tailscaleId: string, macAddress: stri
             body: JSON.stringify({
                 macAddress,
             }),
+            signal: controller.signal,
+        });
+        
+        const data = await response.json() as { success: boolean };
+        clearTimeout(timeoutId);
+        return data.success;
+    } catch (error) {
+        if (error instanceof Error && __DEV__) console.log(error.message);
+        return false;
+    } finally {
+        clearTimeout(timeoutId);
+    }
+}
+
+export async function updateBatteryStatus(tailscaleId: string, body: BatteryStatus): Promise<boolean> {
+    const domain = useZust.getState().domainAddress;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    try {
+        const response = await fetch(`${domain}/api/devices/${tailscaleId}/update-battery-status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
             signal: controller.signal,
         });
         

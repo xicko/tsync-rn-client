@@ -7,7 +7,8 @@ import android.provider.Settings
 import android.util.Log
 import androidx.core.net.toUri
 import com.topjohnwu.superuser.Shell
-import xicko.modules.tsyncnative.BuildConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 fun isIgnoringBatteryOptimizations(context: Context): Boolean {
     val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
@@ -123,4 +124,32 @@ fun blockNotificationsRoot(context: Context, packageName: String?): Boolean {
     cmd.enqueue()
 
     return true
+}
+
+data class BatteryStatus(
+    val level: Int,
+    val isPlugged: Boolean,
+    val timestamp: Long,
+)
+suspend fun retrieveBatteryStatusRoot(): BatteryStatus? = withContext(Dispatchers.IO) {
+    val levelQueue = Shell.cmd("""
+        su -c cmd battery get level
+    """.trimIndent())
+    val queue1 = levelQueue.exec()
+    val level = queue1.out.firstOrNull()?.trim() ?: ""
+
+    val pluggedQueue = Shell.cmd("""
+        su -c dumpsys battery | grep "status:"
+    """.trimIndent())
+    val queue2 = pluggedQueue.exec()
+    val plugged = queue2.out.firstOrNull()?.trim() ?: ""
+    val pluggedBool = plugged.split(":")[1].trim() == "2"
+
+    val now = System.currentTimeMillis()
+
+    Log.d("BatteryStatus", "$level $pluggedBool $now")
+
+    if (level == "" || plugged == "") return@withContext null
+
+    return@withContext BatteryStatus(level.toInt(), pluggedBool, now)
 }

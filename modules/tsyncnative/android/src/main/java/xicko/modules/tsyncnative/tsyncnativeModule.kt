@@ -9,6 +9,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.tencent.mmkv.MMKV
 import com.topjohnwu.superuser.Shell
+import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import xicko.modules.tsyncnative.helpers.*
@@ -137,6 +138,11 @@ class tsyncnativeModule : Module() {
       val ctx = appContext.reactContext
       val res = if (ctx != null) blockNotificationsRoot(ctx, packageName) else false
       return@Function res
+    }
+
+    AsyncFunction("retrieveBatteryStatusRoot") Coroutine { ->
+      val result = retrieveBatteryStatusRoot()
+      "${result?.level}:${result?.isPlugged}:${result?.timestamp}"
     }
   }
 }
