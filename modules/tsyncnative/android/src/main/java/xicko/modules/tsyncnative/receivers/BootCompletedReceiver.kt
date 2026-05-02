@@ -8,6 +8,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import xicko.modules.tsyncnative.BatteryWorker
 import xicko.modules.tsyncnative.ConnectionWorker
 import xicko.modules.tsyncnative.helpers.connectTSRoot
 import xicko.modules.tsyncnative.helpers.disableOptimizationsRoot
@@ -26,13 +27,24 @@ class BootCompletedReceiver: BroadcastReceiver() {
 
                 connectTSRoot()
 
-                val oneTimeReq = OneTimeWorkRequestBuilder<ConnectionWorker>().build()
-                workManager.enqueue(oneTimeReq)
-
-                val periodicReq = PeriodicWorkRequestBuilder<ConnectionWorker>(15, TimeUnit.MINUTES).build()
-                workManager.enqueueUniquePeriodicWork("sync_worker_boot",
+                // ==================================================================
+                // Connection Worker
+                val connectionOneTimeReq = OneTimeWorkRequestBuilder<ConnectionWorker>().build()
+                workManager.enqueue(connectionOneTimeReq)
+                val connectionPeriodicReq = PeriodicWorkRequestBuilder<ConnectionWorker>(15, TimeUnit.MINUTES).build()
+                workManager.enqueueUniquePeriodicWork("connection_worker_boot",
                     ExistingPeriodicWorkPolicy.UPDATE,
-                    periodicReq
+                    connectionPeriodicReq
+                )
+
+                // ==================================================================
+                // Connection Worker
+                val batteryOneTimeReq = OneTimeWorkRequestBuilder<BatteryWorker>().build()
+                workManager.enqueue(batteryOneTimeReq)
+                val batteryPeriodicReq = PeriodicWorkRequestBuilder<BatteryWorker>(15, TimeUnit.MINUTES).build()
+                workManager.enqueueUniquePeriodicWork("battery_worker_boot",
+                    ExistingPeriodicWorkPolicy.UPDATE,
+                    batteryPeriodicReq
                 )
             }
         }
