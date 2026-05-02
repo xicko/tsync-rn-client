@@ -30,7 +30,8 @@ const IgnoreBatteryOptimizationsSheet: React.FC<
 
               const res = tsyncnativeModule.isIgnoringBatteryOptimizations();
               if (res) {
-                tsyncnativeModule.startService();
+                tsyncnativeModule.startConnectionWorker();
+                tsyncnativeModule.startBatteryWorker();
                 SheetManager.hide(sheetId);
               }
             }}>

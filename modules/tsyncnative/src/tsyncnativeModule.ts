@@ -11,7 +11,9 @@ declare class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
   openTS(): void;
   connectTS(): void;
   disconnectTS(): void;
-  startService(): void;
+
+  startConnectionWorker(): void;
+  startBatteryWorker(): void;
 
   isRooted(): boolean;
   openTSRoot(): void;

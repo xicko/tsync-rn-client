@@ -19,12 +19,9 @@ import {
   X,
 } from '@tamagui/lucide-icons';
 import { checkNotificationAccess } from '@/utils/notification';
-import { updateBatteryStatus } from '@/controller/devicesController';
 import { useDeviceStore } from '@/store/deviceStore';
 
 const AppStatus = () => {
-  const thisTailscaleDevice = useDeviceStore((d) => d.thisTailscaleDevice);
-
   const [isIgnoringBatteryOptimizations, setIsIgnoringBatteryOptimizations] =
     useState<boolean>(false);
 
@@ -214,9 +211,18 @@ const AppStatus = () => {
             justify="flex-start"
             icon={MessageSquareDot}
             onPress={async () => {
-              tsyncnativeModule.startService();
+              tsyncnativeModule.startConnectionWorker();
             }}>
-            Start Reconnection Service/Worker
+            Start Connection Service/Worker
+          </Button>
+
+          <Button
+            justify="flex-start"
+            icon={MessageSquareDot}
+            onPress={async () => {
+              tsyncnativeModule.startBatteryWorker();
+            }}>
+            Start Battery Service/Worker
           </Button>
         </YGroup>
 
@@ -228,30 +234,6 @@ const AppStatus = () => {
               icon={Key}
               onPress={() => useDeviceStore.getState().updateIsRooted()}>
               Check isRooted (Root)
-            </Button>
-
-            {/* TODO: remove later */}
-            <Button
-              justify="flex-start"
-              icon={Key}
-              onPress={async () => {
-                const res = await tsyncnativeModule.retrieveBatteryStatus();
-
-                const [l, p, t] = res.split(':');
-
-                const level = Number(l);
-                const isPlugged = p === 'true';
-                const timestamp = Number(t);
-
-                if (!thisTailscaleDevice?.id || isNaN(level) || isNaN(timestamp)) return;
-
-                const result = await updateBatteryStatus(thisTailscaleDevice?.id, {
-                  level,
-                  isPlugged,
-                  timestamp,
-                });
-              }}>
-              retrieveBatteryStatus
             </Button>
           </YGroup>
         ) : null}
