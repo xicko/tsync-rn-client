@@ -19,7 +19,6 @@ import {
   X,
 } from '@tamagui/lucide-icons';
 import { checkNotificationAccess } from '@/utils/notification';
-import { useZust } from '@/store/store';
 import { updateBatteryStatus } from '@/controller/devicesController';
 import { useDeviceStore } from '@/store/deviceStore';
 
@@ -227,7 +226,7 @@ const AppStatus = () => {
             <Button
               justify="flex-start"
               icon={Key}
-              onPress={() => useZust.getState().updateIsRooted()}>
+              onPress={() => useDeviceStore.getState().updateIsRooted()}>
               Check isRooted (Root)
             </Button>
 
@@ -236,7 +235,7 @@ const AppStatus = () => {
               justify="flex-start"
               icon={Key}
               onPress={async () => {
-                const res = await tsyncnativeModule.retrieveBatteryStatusRoot();
+                const res = await tsyncnativeModule.retrieveBatteryStatus();
 
                 const [l, p, t] = res.split(':');
 
@@ -252,7 +251,7 @@ const AppStatus = () => {
                   timestamp,
                 });
               }}>
-              retrieveBatteryStatusRoot (Root)
+              retrieveBatteryStatus
             </Button>
           </YGroup>
         ) : null}

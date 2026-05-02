@@ -1,5 +1,6 @@
 import { getDevices } from "@/controller/devicesController";
 import { useDeviceStore } from "@/store/deviceStore";
+import { storage } from "@/utils/storage";
 import { useQuery } from "@tanstack/react-query";
 
 // contains side effects
@@ -13,7 +14,10 @@ export function useDevices() {
             useDeviceStore.getState().setDevices(devicesArr);
 
             const thisDevice = devicesArr.find((device) => device.isThisDevice === true);
-            if (thisDevice) useDeviceStore.getState().setThisTailscaleDevice(thisDevice);
+            if (thisDevice) {
+                useDeviceStore.getState().setThisTailscaleDevice(thisDevice);
+                storage.set('thisTailscaleDevice', JSON.stringify(thisDevice));
+            }
 
             if (!data) return null;
             return data;

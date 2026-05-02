@@ -3,7 +3,7 @@ import { OpaqueColorValue, TouchableOpacity } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 import { Text, View, XStack, Button, YStack, GetThemeValueForKey, useTheme } from 'tamagui';
 import { Image as ExpoImage } from 'expo-image';
-import { Hotel } from '@tamagui/lucide-icons';
+import { Hotel, Zap } from '@tamagui/lucide-icons';
 import { useThemeStore } from '@/store/themeStore';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -138,11 +138,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
                     </Text>
 
                     {/* Charging indicator */}
-                    {item.battery.isPlugged && (
-                      <Text fontSize="$1" color="$yellow10">
-                        ⚡
-                      </Text>
-                    )}
+                    {item.battery.isPlugged && <Zap strokeWidth={1.4} size={14} />}
 
                     {/* Separator dot */}
                     <Text fontSize="$1" color="$color8">

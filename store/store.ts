@@ -9,9 +9,6 @@ const DOMAIN_KEY = 'domain';
 export interface BearState {
   domainAddress: string;
   setDomainAddress: (val: string) => void;
-
-  isRooted: boolean;
-  updateIsRooted: () => void;
 }
 
 export const useZust = create<BearState>((set) => ({
@@ -32,17 +29,5 @@ export const useZust = create<BearState>((set) => ({
       storage.set(DOMAIN_KEY, val);
     }
     set({ domainAddress: val });
-  },
-
-  isRooted: false,
-  updateIsRooted: () => {
-    let res = false;
-    try {
-      res = tsyncnativeModule.isRooted();
-    } catch (error) {
-      if (error instanceof Error && __DEV__) console.log('isRooted', error.message);
-    }
-
-    set({ isRooted: res });
   },
 }));

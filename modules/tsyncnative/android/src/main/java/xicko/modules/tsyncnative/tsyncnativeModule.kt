@@ -140,8 +140,9 @@ class tsyncnativeModule : Module() {
       return@Function res
     }
 
-    AsyncFunction("retrieveBatteryStatusRoot") Coroutine { ->
-      val result = retrieveBatteryStatusRoot()
+    AsyncFunction("retrieveBatteryStatus") Coroutine { ->
+      val context = appContext.reactContext
+      val result = retrieveBatteryStatus(context)
       "${result?.level}:${result?.isPlugged}:${result?.timestamp}"
     }
   }

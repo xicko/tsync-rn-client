@@ -18,7 +18,7 @@ declare class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
 
   disableOptimizationsRoot(packageName?: string): boolean;
   blockNotificationsRoot(packageName?: string): boolean;
-  retrieveBatteryStatusRoot(): Promise<string>;
+  retrieveBatteryStatus(): Promise<string>;
 }
 
 // This call loads the native module object from the JSI.

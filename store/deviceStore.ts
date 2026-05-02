@@ -1,3 +1,5 @@
+import { updateBatteryStatus } from '@/controller/devicesController';
+import tsyncnativeModule from '@/modules/tsyncnative';
 import { DeviceListItem, TailscaleDevice } from '@/types/tailscale.interface';
 import { create } from 'zustand';
 
@@ -14,9 +16,14 @@ interface DeviceStoreState {
 
   thisTailscaleDevice: TailscaleDevice | null;
   setThisTailscaleDevice: (device: TailscaleDevice) => void;
+
+  isRooted: boolean;
+  updateIsRooted: () => void;
+
+  updateBatteryStatus: () => Promise<boolean>;
 }
 
-export const useDeviceStore = create<DeviceStoreState>((set) => ({
+export const useDeviceStore = create<DeviceStoreState>((set, get) => ({
   devices: [],
   setDevices: (devices) => set({ devices }),
 
@@ -29,4 +36,38 @@ export const useDeviceStore = create<DeviceStoreState>((set) => ({
 
   thisTailscaleDevice: null,
   setThisTailscaleDevice: (device) => set({ thisTailscaleDevice: device }),
+  
+  isRooted: false,
+  updateIsRooted: () => {
+    let res = false;
+    try {
+      res = tsyncnativeModule.isRooted();
+    } catch (error) {
+      if (error instanceof Error && __DEV__) console.log('isRooted', error.message);
+    }
+
+    set({ isRooted: res });
+  },
+
+  updateBatteryStatus: async () => {
+    const thisTailscaleDevice = get().thisTailscaleDevice;
+
+    const res = await tsyncnativeModule.retrieveBatteryStatus();
+    
+    const [l, p, t] = res.split(':');
+
+    const level = Number(l);
+    const isPlugged = p === 'true';
+    const timestamp = Number(t);
+
+    if (!thisTailscaleDevice?.id || isNaN(level) || isNaN(timestamp)) return false;
+
+    const result = await updateBatteryStatus(thisTailscaleDevice?.id, {
+      level,
+      isPlugged,
+      timestamp,
+    });
+
+    return result;
+  }
 }));
