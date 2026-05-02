@@ -22,6 +22,7 @@
   - enforce 99.9% tailscale uptime for reliable connectivity.
   - aggressive reconnection modes (root required).
   - remote control & terminal command execution (root required).
+  - battery status retrieval
 - **windows wol**: remotely wake devices using [local-wol](https://github.com/xicko/local-wol).
 - **native cron jobs**: schedule reminders, day counters, and health checks.
 - **tailnet broadcast**: send system-wide messages to all network devices.
