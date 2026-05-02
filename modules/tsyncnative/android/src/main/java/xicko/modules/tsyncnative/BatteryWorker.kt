@@ -20,11 +20,6 @@ import xicko.modules.tsyncnative.data.TailscaleDevice
 import xicko.modules.tsyncnative.helpers.JsonProvider
 import xicko.modules.tsyncnative.helpers.retrieveBatteryStatus
 
-@kotlinx.serialization.Serializable
-data class APIResponse(
-  val success: Boolean,
-)
-
 class BatteryWorker(
   context: Context,
   params: WorkerParameters

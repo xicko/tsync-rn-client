@@ -154,7 +154,7 @@ function RootLayoutContent() {
   useEffect(function appStateListener() {
     const callback = () => {
       useDeviceStore.getState().updateIsRooted();
-      // useDeviceStore.getState().updateBatteryStatus();
+      useDeviceStore.getState().updateBatteryStatus();
     };
     callback();
     const sub = AppState.addEventListener('change', (e) => {
