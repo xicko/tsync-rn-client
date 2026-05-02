@@ -16,13 +16,13 @@ import { toastConfig } from '@/theme/toastConfig';
 import { SheetProvider } from 'react-native-actions-sheet';
 import { Sheets } from '@/components/Sheets';
 import { NotificationClickEvent, OneSignal } from 'react-native-onesignal';
-import { useZust } from '@/store/store';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import tsyncnativeModule from '@/modules/tsyncnative';
 import Constants from 'expo-constants';
 import { useThemeStore } from '@/store/themeStore';
 import { setBackgroundColorAsync } from 'expo-system-ui';
 import { pingServer } from '@/controller/sysController';
+import { useDeviceStore } from '@/store/deviceStore';
 
 setBackgroundColorAsync('black');
 
@@ -33,6 +33,8 @@ OneSignal.setConsentGiven(true);
 function RootLayoutContent() {
   const pathname = usePathname();
   if (__DEV__) console.log(pathname);
+
+  const thisTailscaleDevice = useDeviceStore((d) => d.thisTailscaleDevice);
 
   // THEME
   const theme = useThemeStore((s) => s.theme);
@@ -100,13 +102,18 @@ function RootLayoutContent() {
         await OneSignal.Notifications.requestPermission(true);
       }
       OneSignal.User.pushSubscription.optIn();
-      OneSignal.login('1');
     })();
 
     return () => {
       OneSignal.Notifications.removeEventListener('click', handleNotificationClick);
     };
   }, []);
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const id = thisTailscaleDevice?.id;
+    if (!id) return;
+    OneSignal.login(id);
+  }, [thisTailscaleDevice?.id]);
 
   // Ping server
   useEffect(function pingServerListener() {
@@ -144,8 +151,11 @@ function RootLayoutContent() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(function checkRootedListener() {
-    const callback = () => useZust.getState().updateIsRooted();
+  useEffect(function appStateListener() {
+    const callback = () => {
+      useDeviceStore.getState().updateIsRooted();
+      useDeviceStore.getState().updateBatteryStatus();
+    };
     callback();
     const sub = AppState.addEventListener('change', (e) => {
       if (e === 'active') callback();

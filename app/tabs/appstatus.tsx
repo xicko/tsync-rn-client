@@ -19,7 +19,7 @@ import {
   X,
 } from '@tamagui/lucide-icons';
 import { checkNotificationAccess } from '@/utils/notification';
-import { useZust } from '@/store/store';
+import { useDeviceStore } from '@/store/deviceStore';
 
 const AppStatus = () => {
   const [isIgnoringBatteryOptimizations, setIsIgnoringBatteryOptimizations] =
@@ -211,19 +211,28 @@ const AppStatus = () => {
             justify="flex-start"
             icon={MessageSquareDot}
             onPress={async () => {
-              tsyncnativeModule.startService();
+              tsyncnativeModule.startConnectionWorker();
             }}>
-            Start Reconnection Service/Worker
+            Start Connection Service/Worker
+          </Button>
+
+          <Button
+            justify="flex-start"
+            icon={MessageSquareDot}
+            onPress={async () => {
+              tsyncnativeModule.startBatteryWorker();
+            }}>
+            Start Battery Service/Worker
           </Button>
         </YGroup>
 
         {/*  */}
         {isAndroid ? (
-          <YGroup>
+          <YGroup gap={'$0.5'}>
             <Button
               justify="flex-start"
               icon={Key}
-              onPress={() => useZust.getState().updateIsRooted()}>
+              onPress={() => useDeviceStore.getState().updateIsRooted()}>
               Check isRooted (Root)
             </Button>
           </YGroup>

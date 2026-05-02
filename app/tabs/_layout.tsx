@@ -30,7 +30,8 @@ export default function TabLayout() {
         SheetManager.show('ignore-battery-optimizations-sheet');
       } else {
         SheetManager.hide('ignore-battery-optimizations-sheet');
-        tsyncnativeModule.startService();
+        tsyncnativeModule.startConnectionWorker();
+        tsyncnativeModule.startBatteryWorker();
       }
     };
     callback();

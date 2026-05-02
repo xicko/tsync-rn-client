@@ -9,6 +9,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.tencent.mmkv.MMKV
 import com.topjohnwu.superuser.Shell
+import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import xicko.modules.tsyncnative.helpers.*
@@ -78,26 +79,40 @@ class tsyncnativeModule : Module() {
       if (ctx != null) disableBatteryOptimizations(ctx, packageName)
     }
 
-    Function("startService") {
+    Function("startConnectionWorker") {
       val ctx = appContext.reactContext
 
-      val periodicRequest = PeriodicWorkRequestBuilder<ConnectionWorker>(
+      // ==================================================================
+      // Connection Worker
+      val connectionPeriodicRequest = PeriodicWorkRequestBuilder<ConnectionWorker>(
         15,
         TimeUnit.MINUTES,
-      )
-        .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-        .build()
+      ).setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()).build()
       if (ctx != null) WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
-        "sync_worker",
+        "connection_worker",
         ExistingPeriodicWorkPolicy.UPDATE,
-        periodicRequest,
+        connectionPeriodicRequest,
       )
+      val connectionOneTimeRequest = OneTimeWorkRequestBuilder<ConnectionWorker>().build()
+      if (ctx != null) WorkManager.getInstance(ctx).enqueue(connectionOneTimeRequest)
+    }
 
-      val oneTimeRequest = OneTimeWorkRequestBuilder<ConnectionWorker>()
-        // .setInitialDelay(30, TimeUnit.SECONDS)
-        .build()
-      if (ctx != null) WorkManager.getInstance(ctx)
-        .enqueue(oneTimeRequest)
+    Function("startBatteryWorker") {
+      val ctx = appContext.reactContext
+
+      // ==================================================================
+      // Battery Sync Worker
+      val batteryPeriodicRequest = PeriodicWorkRequestBuilder<BatteryWorker>(
+        15,
+        TimeUnit.MINUTES,
+      ).setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()).build()
+      if (ctx != null) WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
+        "battery_worker",
+        ExistingPeriodicWorkPolicy.UPDATE,
+        batteryPeriodicRequest,
+      )
+      val batteryOneTimeRequest = OneTimeWorkRequestBuilder<BatteryWorker>().build()
+      if (ctx != null) WorkManager.getInstance(ctx).enqueue(batteryOneTimeRequest)
     }
 
     Function("openTS") {
@@ -137,6 +152,12 @@ class tsyncnativeModule : Module() {
       val ctx = appContext.reactContext
       val res = if (ctx != null) blockNotificationsRoot(ctx, packageName) else false
       return@Function res
+    }
+
+    AsyncFunction("retrieveBatteryStatus") Coroutine { ->
+      val context = appContext.reactContext
+      val result = retrieveBatteryStatus(context)
+      "${result?.level}:${result?.isPlugged}:${result?.timestamp}"
     }
   }
 }

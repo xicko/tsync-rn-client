@@ -2,6 +2,7 @@ import { ExpoConfig } from "expo/config";
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import * as tsyncNativePlugin from './modules/tsyncnative/app.plugin.cjs'
 
 dotenv.config();
 
@@ -29,6 +30,10 @@ export default ({ config }: { config: ExpoConfig }) => {
       EXPO_PUBLIC_HEADLESS_STR: process.env.EXPO_PUBLIC_HEADLESS_STR || '',
       EXPO_PUBLIC_BASE_API_URL: process.env.EXPO_PUBLIC_BASE_API_URL || '',
       EXPO_PUBLIC_ONESIGNAL_APPID: process.env.EXPO_PUBLIC_ONESIGNAL_APPID || '',
-    }
+    },
+    plugins: [
+      ...(config?.plugins || []),
+      tsyncNativePlugin.default,
+    ]
   }
 }

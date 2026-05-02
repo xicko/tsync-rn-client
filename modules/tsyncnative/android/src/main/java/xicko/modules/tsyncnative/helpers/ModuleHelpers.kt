@@ -2,12 +2,15 @@ package xicko.modules.tsyncnative.helpers
 
 import android.content.Context
 import android.content.Intent
+import android.os.BatteryManager
 import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
 import androidx.core.net.toUri
 import com.topjohnwu.superuser.Shell
-import xicko.modules.tsyncnative.BuildConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import xicko.modules.tsyncnative.data.BatteryStatus
 
 fun isIgnoringBatteryOptimizations(context: Context): Boolean {
     val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
@@ -123,4 +126,51 @@ fun blockNotificationsRoot(context: Context, packageName: String?): Boolean {
     cmd.enqueue()
 
     return true
+}
+
+suspend fun retrieveBatteryStatus(ctx: Context?): BatteryStatus? = withContext(Dispatchers.IO) {
+    // try direct root method first
+    val levelQueue = Shell.cmd("""
+        su -c cmd battery get level
+    """.trimIndent())
+    val queue1 = levelQueue.exec()
+    var level: Int? = queue1.out.firstOrNull()?.trim()?.toInt()
+
+    val pluggedQueue = Shell.cmd("""
+        su -c dumpsys battery | grep "status:"
+    """.trimIndent())
+    val queue2 = pluggedQueue.exec()
+    val plugged = queue2.out.firstOrNull()?.trim() ?: ""
+    val pluggedBool = plugged
+        .substringAfter(":", "")
+        .trim()
+        .toIntOrNull() == 2
+
+    var timestamp = System.currentTimeMillis()
+
+    Log.d("BatteryStatus (root)", "$level $pluggedBool $timestamp")
+
+    // try BatteryManager method as fallback
+    if (level == null || plugged == "") {
+        if (ctx == null) return@withContext null
+
+        val batteryManager = ctx.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
+
+        val isCharging = batteryManager?.isCharging
+        level = batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        timestamp = System.currentTimeMillis()
+
+        if (level != null && isCharging != null) {
+            Log.d("BatteryStatus (non-root)", "$level $pluggedBool $timestamp")
+            return@withContext BatteryStatus(
+                level = level,
+                isPlugged = isCharging,
+                timestamp = timestamp
+            )
+        }
+
+      return@withContext null
+    }
+
+    return@withContext BatteryStatus(level.toInt(), pluggedBool, timestamp)
 }
