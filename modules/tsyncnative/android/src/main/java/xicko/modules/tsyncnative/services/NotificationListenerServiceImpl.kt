@@ -10,25 +10,11 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import xicko.modules.tsyncnative.data.CollectedNotificationAndroid
+import xicko.modules.tsyncnative.data.CollectedNotificationAndroidList
 import xicko.modules.tsyncnative.helpers.JsonProvider
 import xicko.modules.tsyncnative.helpers.NotificationHelper
 import java.util.concurrent.Executors
-
-@InternalSerializationApi @Serializable
-data class CollectedNotification(
-  val packageName: String,
-  val timestamp: Long,
-  val title: String,
-  val text: String,
-  val bigText: String,
-  val infoText: String,
-  val titleBig: String,
-  val conversationTitle: String,
-  val peopleList: String
-)
-
-@OptIn(InternalSerializationApi::class)
-typealias CollectedNotificationList = List<CollectedNotification>
 
 fun isBlacklistedNotification(sbn: StatusBarNotification?): Boolean {
   if (sbn == null) {
@@ -104,7 +90,7 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
 
       if (systemNotificationTitles.contains(title)) return@execute
 
-      val collectedNotif = CollectedNotification(
+      val collectedNotif = CollectedNotificationAndroid(
         sbn.packageName,
         sbn.postTime,
         title,
@@ -118,21 +104,16 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
 
       // TODO: Migrate to sqlite in future
       val existingRaw = mmkv.decodeString("local_notifications", null)
-      val existing: CollectedNotificationList = try {
+      val existing: CollectedNotificationAndroidList = try {
         if (existingRaw == null) throw Exception("null")
-        JsonProvider.json.decodeFromString<CollectedNotificationList>(existingRaw)
+        JsonProvider.json.decodeFromString<CollectedNotificationAndroidList>(existingRaw)
       } catch (e: Exception) {
-        emptyList<CollectedNotification>()
+        emptyList<CollectedNotificationAndroid>()
       }
       val merged = (existing + collectedNotif).reversed()
       mmkv.encode("local_notifications", JsonProvider.json.encodeToString(merged))
 
-      if (false) NotificationHelper.show(
-        this,
-        "fromservice: ${merged.size} $title",
-        text,
-        null
-      )
+      Log.i("NotificationListenerServiceImpl", "onNotificationPosted: $collectedNotif")
     }
   }
 

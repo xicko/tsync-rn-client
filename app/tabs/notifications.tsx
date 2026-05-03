@@ -28,7 +28,7 @@ const NotificationsScreen = () => {
       <XStack gap="$0">
         <Button
           flex={1}
-          bg={selectedTab !== 'global' ? '$color3' : undefined}
+          bg={selectedTab !== 'global' ? 'transparent' : undefined}
           rounded={0}
           icon={Globe}
           onPress={() => setSelectedTab('global')}>
@@ -36,7 +36,7 @@ const NotificationsScreen = () => {
         </Button>
         <Button
           flex={1}
-          bg={selectedTab !== 'local' ? '$color3' : undefined}
+          bg={selectedTab !== 'local' ? 'transparent' : undefined}
           rounded={0}
           icon={Smartphone}
           onPress={() => setSelectedTab('local')}>
