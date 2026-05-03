@@ -3,9 +3,15 @@ import { ActivityIndicator } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePathname } from 'expo-router';
-import { View, Text, XStack, YStack as TamaguiYStack, Circle, useTheme } from 'tamagui';
+import { View, Text, XStack, YStack as TamaguiYStack, Circle, useTheme, ScrollView } from 'tamagui';
 import Animated, { withTiming, LinearTransition } from 'react-native-reanimated';
-import { Clock, Layers2, MessageCircle, MonitorSmartphone, TerminalSquare } from '@tamagui/lucide-icons';
+import {
+  Clock,
+  Layers2,
+  MessageCircle,
+  MonitorSmartphone,
+  TerminalSquare,
+} from '@tamagui/lucide-icons';
 
 interface CustomTabBarProps extends BottomTabBarProps {}
 
@@ -53,6 +59,7 @@ const TabItem = ({
       flex={1}
       items="center"
       justify="center"
+      width={'$4'}
       py="$3"
       gap={4}
       pressStyle={{ opacity: 0.7 }}
@@ -119,6 +126,7 @@ const TabItem = ({
 };
 
 const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
+  const tamaguiTheme = useTheme();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
 
@@ -143,55 +151,58 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
   };
 
   return (
-    <XStack
-      bg="$background"
-      borderTopWidth={1}
-      borderTopColor={'$color3'}
-      pb={insets.bottom > 0 ? insets.bottom : '$4'}
-      items="center"
-      justify="space-between"
-      px="$1.5"
-      elevation="$2">
-      <TabItem
-        label="Devices"
-        icon={<MonitorSmartphone strokeWidth={1.3} />}
-        activeIcon={<MonitorSmartphone />}
-        isActive={activeTab === 'devices'}
-        onPress={() => handleTabPress('devices')}
-      />
+    <ScrollView
+      horizontal
+      style={{ flexGrow: 0, borderTopWidth: 1, borderColor: tamaguiTheme.color3.val }}>
+      <XStack
+        bg="$background"
+        pb={insets.bottom > 0 ? insets.bottom : '$4'}
+        items="center"
+        justify="space-between"
+        px="$3"
+        gap="$5"
+        elevation="$2">
+        <TabItem
+          label="Devices"
+          icon={<MonitorSmartphone strokeWidth={1.3} color={'$color6'} />}
+          activeIcon={<MonitorSmartphone />}
+          isActive={activeTab === 'devices'}
+          onPress={() => handleTabPress('devices')}
+        />
 
-      <TabItem
-        label="Crons"
-        icon={<Clock strokeWidth={1.3} />}
-        activeIcon={<Clock />}
-        isActive={activeTab === 'crons'}
-        onPress={() => handleTabPress('crons')}
-      />
+        <TabItem
+          label="Crons"
+          icon={<Clock strokeWidth={1.3} color={'$color6'} />}
+          activeIcon={<Clock />}
+          isActive={activeTab === 'crons'}
+          onPress={() => handleTabPress('crons')}
+        />
 
-      <TabItem
-        label="Shell"
-        icon={<TerminalSquare strokeWidth={1.3} />}
-        activeIcon={<TerminalSquare />}
-        isActive={activeTab === 'shell'}
-        onPress={() => handleTabPress('shell')}
-      />
+        <TabItem
+          label="Shell"
+          icon={<TerminalSquare strokeWidth={1.3} color={'$color6'} />}
+          activeIcon={<TerminalSquare />}
+          isActive={activeTab === 'shell'}
+          onPress={() => handleTabPress('shell')}
+        />
 
-      <TabItem
-        label="App Status"
-        icon={<Layers2 strokeWidth={1.3} />}
-        activeIcon={<Layers2 />}
-        isActive={activeTab === 'appstatus'}
-        onPress={() => handleTabPress('appstatus')}
-      />
+        <TabItem
+          label="App Status"
+          icon={<Layers2 strokeWidth={1.3} color={'$color6'} />}
+          activeIcon={<Layers2 />}
+          isActive={activeTab === 'appstatus'}
+          onPress={() => handleTabPress('appstatus')}
+        />
 
-      <TabItem
-        label="Message"
-        icon={<MessageCircle strokeWidth={1.3} />}
-        activeIcon={<MessageCircle />}
-        isActive={activeTab === 'message'}
-        onPress={() => handleTabPress('message')}
-      />
-    </XStack>
+        <TabItem
+          label="Message"
+          icon={<MessageCircle strokeWidth={1.3} color={'$color6'} />}
+          activeIcon={<MessageCircle />}
+          isActive={activeTab === 'message'}
+          onPress={() => handleTabPress('message')}
+        />
+      </XStack>
+    </ScrollView>
   );
 };
 
