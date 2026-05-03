@@ -159,5 +159,10 @@ class tsyncnativeModule : Module() {
       val result = retrieveBatteryStatus(context)
       "${result?.level}:${result?.isPlugged}:${result?.timestamp}"
     }
+
+    Function("startNotificationListenerService") {
+      val context = appContext.reactContext
+      startNotificationListenerService(context)
+    }
   }
 }

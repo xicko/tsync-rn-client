@@ -174,3 +174,12 @@ suspend fun retrieveBatteryStatus(ctx: Context?): BatteryStatus? = withContext(D
 
     return@withContext BatteryStatus(level.toInt(), pluggedBool, timestamp)
 }
+
+fun startNotificationListenerService(ctx: Context?) {
+    if (ctx == null) return
+
+    val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    ctx.startActivity(intent)
+}

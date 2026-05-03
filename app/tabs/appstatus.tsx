@@ -235,6 +235,13 @@ const AppStatus = () => {
               onPress={() => useDeviceStore.getState().updateIsRooted()}>
               Check isRooted (Root)
             </Button>
+
+            <Button
+              justify="flex-start"
+              icon={Key}
+              onPress={() => tsyncnativeModule.startNotificationListenerService()}>
+              startNotificationListenerService
+            </Button>
           </YGroup>
         ) : null}
       </YStack>
