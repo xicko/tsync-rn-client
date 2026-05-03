@@ -23,6 +23,7 @@ import { useThemeStore } from '@/store/themeStore';
 import { setBackgroundColorAsync } from 'expo-system-ui';
 import { pingServer } from '@/controller/sysController';
 import { useDeviceStore } from '@/store/deviceStore';
+import { storage } from '@/utils/storage';
 
 setBackgroundColorAsync('black');
 

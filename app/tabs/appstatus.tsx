@@ -25,7 +25,15 @@ const AppStatus = () => {
   const [isIgnoringBatteryOptimizations, setIsIgnoringBatteryOptimizations] =
     useState<boolean>(false);
 
+  const [isNotificationListenerEnabled, setIsNotificationListenerEnabled] =
+    useState<boolean>(false);
+
   const [notificationPermission, setNotificationPermission] = useState<boolean>(false);
+
+  const updateNotificationListenerState = () => {
+    const res = tsyncnativeModule.isNotificationListenerEnabled();
+    setIsNotificationListenerEnabled(res);
+  };
 
   const updateBatteryState = () => {
     const res = tsyncnativeModule.isIgnoringBatteryOptimizations();
@@ -38,6 +46,7 @@ const AppStatus = () => {
   };
 
   const updateStates = () => {
+    updateNotificationListenerState();
     updateBatteryState();
     updateNotifState();
   };
@@ -224,6 +233,15 @@ const AppStatus = () => {
             }}>
             Start Battery Service/Worker
           </Button>
+
+          <Button
+            justify="flex-start"
+            icon={Key}
+            disabled={isNotificationListenerEnabled}
+            opacity={isNotificationListenerEnabled ? 0.5 : 1}
+            onPress={() => tsyncnativeModule.startNotificationListenerService()}>
+            Start Notification Listener Service
+          </Button>
         </YGroup>
 
         {/*  */}
@@ -234,13 +252,6 @@ const AppStatus = () => {
               icon={Key}
               onPress={() => useDeviceStore.getState().updateIsRooted()}>
               Check isRooted (Root)
-            </Button>
-
-            <Button
-              justify="flex-start"
-              icon={Key}
-              onPress={() => tsyncnativeModule.startNotificationListenerService()}>
-              startNotificationListenerService
             </Button>
           </YGroup>
         ) : null}

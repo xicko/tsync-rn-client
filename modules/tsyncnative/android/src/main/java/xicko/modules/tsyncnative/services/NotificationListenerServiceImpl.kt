@@ -6,8 +6,29 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.tencent.mmkv.MMKV
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import xicko.modules.tsyncnative.helpers.JsonProvider
 import xicko.modules.tsyncnative.helpers.NotificationHelper
 import java.util.concurrent.Executors
+
+@InternalSerializationApi @Serializable
+data class CollectedNotification(
+  val packageName: String,
+  val timestamp: Long,
+  val title: String,
+  val text: String,
+  val bigText: String,
+  val infoText: String,
+  val titleBig: String,
+  val conversationTitle: String,
+  val peopleList: String
+)
+
+@OptIn(InternalSerializationApi::class)
+typealias CollectedNotificationList = List<CollectedNotification>
 
 fun isBlacklistedNotification(sbn: StatusBarNotification?): Boolean {
   if (sbn == null) {
@@ -42,6 +63,7 @@ fun isBlacklistedNotification(sbn: StatusBarNotification?): Boolean {
 class NotificationListenerServiceImpl : NotificationListenerService() {
   private val notiExecutor = Executors.newSingleThreadExecutor()
 
+  @OptIn(InternalSerializationApi::class)
   override fun onNotificationPosted(sbn: StatusBarNotification?) {
     super.onNotificationPosted(sbn)
 
@@ -56,35 +78,25 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
       ""
     )
 
-    notiExecutor.execute {
-      MMKV.initialize(this.applicationContext)
-      val mmkv = MMKV.mmkvWithID("root")
+    MMKV.initialize(this.applicationContext)
+    val mmkv = MMKV.mmkvWithID("root", MMKV.MULTI_PROCESS_MODE)
 
+    notiExecutor.execute {
       val notificationExtras = sbn.notification.extras
 
       val title = notificationExtras.getCharSequence(Notification.EXTRA_TITLE)?.toString().orEmpty()
-
-      val conversationTitle = notificationExtras.getCharSequence(Notification.EXTRA_CONVERSATION_TITLE)
-        ?.toString()
-        .orEmpty()
-
+      val conversationTitle = notificationExtras.getCharSequence(Notification.EXTRA_CONVERSATION_TITLE)?.toString().orEmpty()
       val text = notificationExtras.getCharSequence(Notification.EXTRA_TEXT)?.toString().orEmpty()
-
-      val bigText = notificationExtras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
-        .orEmpty()
-
-      val infoText = notificationExtras.getCharSequence(Notification.EXTRA_INFO_TEXT)?.toString()
-        .orEmpty()
-
-      val titleBig = notificationExtras.getCharSequence(Notification.EXTRA_TITLE_BIG)?.toString()
-        .orEmpty()
-
-      val peopleList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      val bigText = notificationExtras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString().orEmpty()
+      val infoText = notificationExtras.getCharSequence(Notification.EXTRA_INFO_TEXT)?.toString().orEmpty()
+      val titleBig = notificationExtras.getCharSequence(Notification.EXTRA_TITLE_BIG)?.toString().orEmpty()
+      val peopleList: String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         try {
           notificationExtras.getCharSequenceArrayList(Notification.EXTRA_PEOPLE_LIST)
             ?.toString().orEmpty()
         } catch (e: ClassCastException) {
           Log.i("NotificationListenerServiceImpl", "error casting: ${e.stackTraceToString()}")
+          String()
         }
       } else {
         String()
@@ -92,9 +104,32 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
 
       if (systemNotificationTitles.contains(title)) return@execute
 
-      NotificationHelper.show(
+      val collectedNotif = CollectedNotification(
+        sbn.packageName,
+        sbn.postTime,
+        title,
+        text,
+        bigText,
+        infoText,
+        titleBig,
+        conversationTitle,
+        peopleList
+      )
+
+      // TODO: Migrate to sqlite in future
+      val existingRaw = mmkv.decodeString("local_notifications", null)
+      val existing: CollectedNotificationList = try {
+        if (existingRaw == null) throw Exception("null")
+        JsonProvider.json.decodeFromString<CollectedNotificationList>(existingRaw)
+      } catch (e: Exception) {
+        emptyList<CollectedNotification>()
+      }
+      val merged = (existing + collectedNotif).reversed()
+      mmkv.encode("local_notifications", JsonProvider.json.encodeToString(merged))
+
+      if (false) NotificationHelper.show(
         this,
-        "fromservice: $title",
+        "fromservice: ${merged.size} $title",
         text,
         null
       )

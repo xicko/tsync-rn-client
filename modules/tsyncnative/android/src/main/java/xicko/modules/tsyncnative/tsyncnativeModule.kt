@@ -160,6 +160,11 @@ class tsyncnativeModule : Module() {
       "${result?.level}:${result?.isPlugged}:${result?.timestamp}"
     }
 
+    Function("isNotificationListenerEnabled") {
+      val context = appContext.reactContext
+      isNotificationListenerEnabled(context)
+    }
+
     Function("startNotificationListenerService") {
       val context = appContext.reactContext
       startNotificationListenerService(context)

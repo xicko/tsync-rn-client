@@ -1,5 +1,7 @@
 package xicko.modules.tsyncnative.helpers
 
+import android.app.NotificationManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.BatteryManager
@@ -11,6 +13,7 @@ import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import xicko.modules.tsyncnative.data.BatteryStatus
+import xicko.modules.tsyncnative.services.NotificationListenerServiceImpl
 
 fun isIgnoringBatteryOptimizations(context: Context): Boolean {
     val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
@@ -175,11 +178,27 @@ suspend fun retrieveBatteryStatus(ctx: Context?): BatteryStatus? = withContext(D
     return@withContext BatteryStatus(level.toInt(), pluggedBool, timestamp)
 }
 
+fun isNotificationListenerEnabled(ctx: Context?): Boolean {
+    if (ctx == null) return false
+
+    val enabled = Settings.Secure.getString(
+        ctx.contentResolver,
+        "enabled_notification_listeners"
+    ) ?: return false
+
+    val component = ComponentName(
+        ctx,
+        NotificationListenerServiceImpl::class.java
+    ).flattenToString()
+
+    return enabled.contains(component)
+}
+
 fun startNotificationListenerService(ctx: Context?) {
-    if (ctx == null) return
+    if (isNotificationListenerEnabled(ctx)) return
 
     val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-    ctx.startActivity(intent)
+    ctx?.startActivity(intent)
 }
