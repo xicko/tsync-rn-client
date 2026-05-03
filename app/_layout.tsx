@@ -187,7 +187,7 @@ function RootLayoutContent() {
           <Stack.Screen name="index" options={{ headerShown: false, animation: 'fade' }} />
 
           <Stack.Screen
-            name="device/[id]"
+            name="device-info"
             options={{
               headerShown: true,
               animation: 'fade',

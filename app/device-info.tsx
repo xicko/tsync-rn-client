@@ -1,3 +1,4 @@
+import BatteryInfo from '@/components/Devices/BatteryInfo';
 import { useDeviceStore } from '@/store/deviceStore';
 import {
   DeviceListItem,
@@ -208,6 +209,7 @@ export default function DeviceDetailScreen() {
             <Row label="Created" value={formatDate(d?.created)} />
             <Row label="Key expires" value={formatDate(d?.expires)} />
             <Row label="Key expiry disabled" value={d?.keyExpiryDisabled} />
+            {d ? <BatteryInfo item={d} /> : null}
           </Section>
 
           {/* Capabilities */}
