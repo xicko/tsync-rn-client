@@ -95,7 +95,7 @@ export default function HomeScreen() {
   const handlePress = useCallback(
     (device: DeviceListItem) => {
       setSelectedDevice(device);
-      router.push({ pathname: '/device/[id]', params: { id: device.id } });
+      router.push({ pathname: '/device-info', params: { id: device.id } });
     },
     [router, setSelectedDevice]
   );
