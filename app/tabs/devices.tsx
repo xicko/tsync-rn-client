@@ -36,9 +36,19 @@ export default function HomeScreen() {
   const devicesList = useMemo<DeviceListItem[]>(() => {
     if (!data?.devices) return [];
     const items = data.devices.map(toDeviceListItem).sort((a, b) => {
-      const aTime = dayjs(a.lastSeen).unix();
-      const bTime = dayjs(b.lastSeen).unix();
-      return bTime - aTime;
+      const aLevel = a.battery?.level;
+      const bLevel = b.battery?.level;
+
+      if (aLevel == null && bLevel == null) {
+        const aTime = dayjs(a.lastSeen).unix();
+        const bTime = dayjs(b.lastSeen).unix();
+        return bTime - aTime;
+      }
+
+      if (aLevel == null) return 1;
+      if (bLevel == null) return -1;
+
+      return aLevel - bLevel;
     });
     if (filter === 'online') return items.filter((d) => d.isActive);
     if (filter === 'offline') return items.filter((d) => !d.isActive);
