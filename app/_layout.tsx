@@ -9,7 +9,7 @@ import { headerTextStyle } from '@/constants/theme.constants';
 import { stackNavDefaultBackButton } from '@/components/StackNavDefaultBackButton';
 import { StatusBar } from 'expo-status-bar';
 import { socketStore } from '@/store/socketStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { showToast } from '@/utils/toast';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/theme/toastConfig';
@@ -23,7 +23,6 @@ import { useThemeStore } from '@/store/themeStore';
 import { setBackgroundColorAsync } from 'expo-system-ui';
 import { pingServer } from '@/controller/sysController';
 import { useDeviceStore } from '@/store/deviceStore';
-import { storage } from '@/utils/storage';
 
 setBackgroundColorAsync('black');
 
@@ -88,6 +87,7 @@ function RootLayoutContent() {
   );
 
   // PUSH NOTIFICATION
+  const [canOneSignalLogin, setCanOneSignalLogin] = useState(false);
   useEffect(function initOneSignal() {
     const handleNotificationClick = (e: NotificationClickEvent) => {
       const customData = e.notification.additionalData as Record<string, any>;
@@ -103,6 +103,8 @@ function RootLayoutContent() {
         await OneSignal.Notifications.requestPermission(true);
       }
       OneSignal.User.pushSubscription.optIn();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      setCanOneSignalLogin(true);
     })();
 
     return () => {
@@ -110,11 +112,11 @@ function RootLayoutContent() {
     };
   }, []);
   useEffect(() => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || !canOneSignalLogin) return;
     const id = thisTailscaleDevice?.id;
     if (!id) return;
     OneSignal.login(id);
-  }, [thisTailscaleDevice?.id]);
+  }, [thisTailscaleDevice?.id, canOneSignalLogin]);
 
   // Ping server
   useEffect(function pingServerListener() {

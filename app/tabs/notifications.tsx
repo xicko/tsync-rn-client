@@ -1,4 +1,6 @@
+import { receiveNotification } from '@/controller/notificationsSyncController';
 import { useLocalNotifications } from '@/hooks/local/notifications';
+import { useDeviceStore } from '@/store/deviceStore';
 import { storage } from '@/utils/storage';
 import { Globe, Settings2, Smartphone } from '@tamagui/lucide-icons';
 import dayjs from 'dayjs';
@@ -8,6 +10,8 @@ import { Platform } from 'react-native';
 import { View, ScrollView, YGroup, Button, Text, YStack, XStack } from 'tamagui';
 
 const NotificationsScreen = () => {
+  const thisTailscaleDevice = useDeviceStore((d) => d.thisTailscaleDevice);
+
   const [selectedTab, setSelectedTab] = useState<'global' | 'local'>('global');
 
   const { data: localNotifications, refetch: refetchLocalNotifications } = useLocalNotifications();
@@ -57,17 +61,33 @@ const NotificationsScreen = () => {
             <YGroup m={'$3'} gap="$0.5">
               {localNotifs.map((notif, i) => {
                 return (
-                  <Button key={notif.timestamp} height={'auto'} py="$2.5" width={'100%'}>
+                  <Button
+                    key={notif.timestamp}
+                    height={'auto'}
+                    py="$2.5"
+                    width={'100%'}
+                    onLongPress={async () => {
+                      if (!thisTailscaleDevice?.id) return;
+                      const res = await receiveNotification(thisTailscaleDevice?.id, {
+                        type: 'android',
+                        android: notif,
+                      });
+
+                      console.log({ res });
+                    }}>
                     <YStack width={'100%'}>
                       <Text fontSize={'$4'} fontWeight={600}>
                         {notif.title}
                       </Text>
+
                       {notif.text ? (
                         <Text fontSize={'$4'} fontWeight={600}>
                           {notif.text || 'No text.'}
                         </Text>
                       ) : null}
+
                       <Text color="$color8">{notif.packageName}</Text>
+
                       <Text color="$color8">
                         {dayjs(notif.timestamp).format('YYYY/MM/DD - HH:mm:ss')}
                       </Text>

@@ -5,6 +5,11 @@ import kotlinx.serialization.Serializable
 
 @InternalSerializationApi @Serializable
 data class CollectedNotificationAndroid(
+  val type: String,
+  val android: CollectedNotificationAndroidData,
+)
+@InternalSerializationApi @Serializable
+data class CollectedNotificationAndroidData(
   val packageName: String,
   val timestamp: Long,
   val title: String,
@@ -17,4 +22,4 @@ data class CollectedNotificationAndroid(
 )
 
 @OptIn(InternalSerializationApi::class)
-typealias CollectedNotificationAndroidList = List<CollectedNotificationAndroid>
+typealias CollectedNotificationAndroidDataList = List<CollectedNotificationAndroidData>

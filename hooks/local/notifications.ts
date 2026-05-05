@@ -1,4 +1,4 @@
-import { CollectedNotificationAndroid } from "@/types/notifications.interface";
+import { CollectedNotificationAndroidData } from "@/types/notifications.interface";
 import { storage } from "@/utils/storage";
 import { useQuery } from "@tanstack/react-query";
 
@@ -7,7 +7,7 @@ export function useLocalNotifications() {
     queryKey: ['local_notifications'],
     queryFn: () => {
       const resStr = storage.getString('local_notifications') ?? '[]';
-      const local = JSON.parse(resStr) as CollectedNotificationAndroid[];
+      const local = JSON.parse(resStr) as CollectedNotificationAndroidData[];
 
       return local;
     },

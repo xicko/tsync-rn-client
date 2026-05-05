@@ -6,14 +6,28 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.tencent.mmkv.MMKV
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import xicko.modules.tsyncnative.data.CollectedNotificationAndroid
-import xicko.modules.tsyncnative.data.CollectedNotificationAndroidList
+import xicko.modules.tsyncnative.data.CollectedNotificationAndroidData
+import xicko.modules.tsyncnative.data.CollectedNotificationAndroidDataList
+import xicko.modules.tsyncnative.data.TailscaleDevice
 import xicko.modules.tsyncnative.helpers.JsonProvider
-import xicko.modules.tsyncnative.helpers.NotificationHelper
 import java.util.concurrent.Executors
 
 fun isBlacklistedNotification(sbn: StatusBarNotification?): Boolean {
@@ -48,6 +62,7 @@ fun isBlacklistedNotification(sbn: StatusBarNotification?): Boolean {
 
 class NotificationListenerServiceImpl : NotificationListenerService() {
   private val notiExecutor = Executors.newSingleThreadExecutor()
+  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   @OptIn(InternalSerializationApi::class)
   override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -90,7 +105,7 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
 
       if (systemNotificationTitles.contains(title)) return@execute
 
-      val collectedNotif = CollectedNotificationAndroid(
+      val collectedNotif = CollectedNotificationAndroidData(
         sbn.packageName,
         sbn.postTime,
         title,
@@ -104,14 +119,56 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
 
       // TODO: Migrate to sqlite in future
       val existingRaw = mmkv.decodeString("local_notifications", null)
-      val existing: CollectedNotificationAndroidList = try {
+      val existing: CollectedNotificationAndroidDataList = try {
         if (existingRaw == null) throw Exception("null")
-        JsonProvider.json.decodeFromString<CollectedNotificationAndroidList>(existingRaw)
+        JsonProvider.json.decodeFromString<CollectedNotificationAndroidDataList>(existingRaw)
       } catch (e: Exception) {
-        emptyList<CollectedNotificationAndroid>()
+        emptyList<CollectedNotificationAndroidData>()
       }
       val merged = (existing + collectedNotif).reversed()
       mmkv.encode("local_notifications", JsonProvider.json.encodeToString(merged))
+
+      // Send to server
+      val client = HttpClient(CIO) {
+        install(HttpTimeout) {
+          connectTimeoutMillis = 5000L
+          requestTimeoutMillis = 5000L
+        }
+        install(ContentNegotiation) {
+          json(Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            explicitNulls = false
+          })
+        }
+      }
+      try {
+        val domain = mmkv.decodeString("domain", null) ?: throw Exception("domain not found")
+        val thisTailscaleDeviceStr = mmkv.decodeString("thisTailscaleDevice", null) ?: throw Exception("thisTailscaleDevice not found")
+        val thisTailscaleDevice = JsonProvider.json.decodeFromString<TailscaleDevice>(thisTailscaleDeviceStr)
+        val body = CollectedNotificationAndroid(
+          type = "android",
+          android = collectedNotif
+        )
+        scope.launch {
+          Log.i("NotificationListenerServiceImpl", "sending notification to server ${thisTailscaleDevice.id}")
+          Log.i("NotificationListenerServiceImpl", "domain: ${"$domain/api/notifications-sync/devices/${thisTailscaleDevice.id}/receive-notification"}")
+          try {
+            val response = client.post("$domain/api/notifications-sync/devices/${thisTailscaleDevice.id}/receive-notification") {
+              contentType(ContentType.Application.Json)
+              setBody(body)
+            }
+
+            Log.i("NotificationListenerServiceImpl", "response: ${response.bodyAsText()} ${response.status}")
+          } catch (e: Exception) {
+            Log.i("NotificationListenerServiceImpl", "error: ${e.message}")
+          } finally {
+            client.close()
+          }
+        }
+      } catch (e: Exception) {
+        Log.i("NotificationListenerServiceImpl", "error: ${e.message}")
+      }
 
       Log.i("NotificationListenerServiceImpl", "onNotificationPosted: $collectedNotif")
     }
