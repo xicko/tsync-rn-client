@@ -26,7 +26,7 @@ class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
 
   disableOptimizationsRoot(packageName?: string): boolean { return false; };
   blockNotificationsRoot(packageName?: string): boolean { return false; };
-  retrieveBatteryStatus(): void {};
+  retrieveBatteryStatus(): string { return '' };
 };
 
 export default registerWebModule(tsyncnativeModule, 'tsyncnativeModule');
