@@ -9,11 +9,24 @@ interface Props {
 
 const BatteryInfo: React.FC<Props> = ({ item }) => {
   const tamaguiTheme = useTheme();
+  const now = dayjs(); 
 
   const level = Math.min(Math.max(item?.battery?.level ?? 0, 0), 100);
   const isHealthy = level > 30;
-  const fillColor = isHealthy ? tamaguiTheme.green5 : tamaguiTheme.red5;
-  const textColor = isHealthy ? '$green11' : '$red11';
+  const timestamp = Number(item.battery?.timestamp);
+  const isRecent = !isNaN(timestamp) && (now.diff(timestamp, 'day') < 2);
+  const fillColor = 
+    isRecent ?
+      isHealthy
+        ? tamaguiTheme.green5
+        : tamaguiTheme.red5
+    : tamaguiTheme.blue5;
+  const textColor = 
+    isRecent ?
+      isHealthy
+        ? '$green11'
+        : '$red11'
+    : '$blue11';
 
   if (!item?.battery) return null;
 

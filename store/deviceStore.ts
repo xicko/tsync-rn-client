@@ -54,7 +54,7 @@ export const useDeviceStore = create<DeviceStoreState>((set, get) => ({
 
     const res = await tsyncnativeModule.retrieveBatteryStatus();
     
-    const [l, p, t] = res.split(':');
+    const [l, p, t] = res?.split(':');
 
     const level = Number(l);
     const isPlugged = p === 'true';
