@@ -108,7 +108,8 @@ const TabItem = ({
         <Animated.View
           entering={EnteringHeight}
           exiting={ExitingHeight}
-          style={{ overflow: 'hidden' }}>
+          style={{ overflow: 'hidden' }}
+        >
           <Text
             fontSize={11}
             fontWeight={isActive ? '400' : '300'}
@@ -117,7 +118,8 @@ const TabItem = ({
             style={{
               alignSelf: 'center',
               textAlign: 'center',
-            }}>
+            }}
+          >
             {label}
           </Text>
         </Animated.View>
@@ -155,7 +157,8 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
   return (
     <ScrollView
       horizontal
-      style={{ flexGrow: 0, borderTopWidth: 1, borderColor: tamaguiTheme.color3.val }}>
+      style={{ flexGrow: 0, borderTopWidth: 1, borderColor: tamaguiTheme.color3.val }}
+    >
       <XStack
         bg="$background"
         pb={insets.bottom > 0 ? insets.bottom : '$4'}
@@ -163,10 +166,11 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
         justify="space-between"
         px="$3"
         gap="$5"
-        elevation="$2">
+        elevation="$2"
+      >
         <TabItem
           label="Devices"
-          icon={<MonitorSmartphone strokeWidth={1.3} color={'$color6'} />}
+          icon={<MonitorSmartphone strokeWidth={1.3} color={'$color7'} />}
           activeIcon={<MonitorSmartphone />}
           isActive={activeTab === 'devices'}
           onPress={() => handleTabPress('devices')}
@@ -174,7 +178,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
 
         <TabItem
           label="Crons"
-          icon={<Clock strokeWidth={1.3} color={'$color6'} />}
+          icon={<Clock strokeWidth={1.3} color={'$color7'} />}
           activeIcon={<Clock />}
           isActive={activeTab === 'crons'}
           onPress={() => handleTabPress('crons')}
@@ -182,7 +186,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
 
         <TabItem
           label="Shell"
-          icon={<TerminalSquare strokeWidth={1.3} color={'$color6'} />}
+          icon={<TerminalSquare strokeWidth={1.3} color={'$color7'} />}
           activeIcon={<TerminalSquare />}
           isActive={activeTab === 'shell'}
           onPress={() => handleTabPress('shell')}
@@ -190,7 +194,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
 
         <TabItem
           label="App Status"
-          icon={<Layers2 strokeWidth={1.3} color={'$color6'} />}
+          icon={<Layers2 strokeWidth={1.3} color={'$color7'} />}
           activeIcon={<Layers2 />}
           isActive={activeTab === 'appstatus'}
           onPress={() => handleTabPress('appstatus')}
@@ -198,7 +202,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
 
         <TabItem
           label="Message"
-          icon={<MessageCircle strokeWidth={1.3} color={'$color6'} />}
+          icon={<MessageCircle strokeWidth={1.3} color={'$color7'} />}
           activeIcon={<MessageCircle />}
           isActive={activeTab === 'message'}
           onPress={() => handleTabPress('message')}
@@ -206,7 +210,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
 
         <TabItem
           label="Notifications"
-          icon={<Bell strokeWidth={1.3} color={'$color6'} />}
+          icon={<Bell strokeWidth={1.3} color={'$color7'} />}
           activeIcon={<Bell />}
           isActive={activeTab === 'notifications'}
           onPress={() => handleTabPress('notifications')}

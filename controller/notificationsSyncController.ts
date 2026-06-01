@@ -1,7 +1,7 @@
 import { useZust } from "@/store/store";
 import { CollectedNotification } from "@/types/notifications.interface";
-import { PaginationResponse } from "@/types/pagination.interface";
 import { TailscaleDevice } from "@/types/tailscale.interface";
+import dayjs from "dayjs";
 
 export async function receiveNotification(tailscaleId: string, body: CollectedNotification): Promise<boolean> {
     const domain = useZust.getState().domainAddress;
@@ -47,15 +47,37 @@ export interface NotificationsSyncListResponseType {
     },
     data?: DataType[];
 };
-export async function getNotificationsList(pagination: { limit?: number, page?: number, timestamp?: number }): Promise<NotificationsSyncListResponseType | null> {
+
+export interface GetNotificationsListOptions {
+    limit?: number;
+    page?: number;
+    timestamp?: number;
+    search?: string;
+    os?: string;
+    startDate?: number | null;
+    endDate?: number | null;
+}
+
+export async function getNotificationsList(options: GetNotificationsListOptions): Promise<NotificationsSyncListResponseType | null> {
     const url = useZust.getState().domainAddress;
     const domain = new URL(`${url}/api/notifications-sync/list`);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    if (pagination.page) domain.searchParams.append('page', String(pagination.page));
-    if (pagination.timestamp) domain.searchParams.append('timestamp', String(pagination.timestamp));
-    if (pagination.limit) domain.searchParams.append('limit', String(pagination.limit));
+    if (options.page) domain.searchParams.append('page', String(options.page));
+    if (options.timestamp) domain.searchParams.append('timestamp', String(options.timestamp));
+    if (options.limit) domain.searchParams.append('limit', String(options.limit));
+
+    if (options.search) domain.searchParams.append('search', options.search);
+    if (options.os && options.os !== 'all') domain.searchParams.append('os', options.os);
+    if (options.startDate) {
+        const startMs = dayjs(options.startDate).startOf('day').valueOf();
+        domain.searchParams.append('startDate', String(startMs));
+    }
+    if (options.endDate) {
+        const endMs = dayjs(options.endDate).endOf('day').valueOf();
+        domain.searchParams.append('endDate', String(endMs));
+    }
     
     try {
         const response = await fetch(domain, {
