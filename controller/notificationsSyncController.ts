@@ -67,9 +67,6 @@ export async function getNotificationsList(pagination: { limit?: number, page?: 
         });
         
         const data = await response.json();
-
-        console.log(JSON.stringify(data, null, 2));
-        
         
         clearTimeout(timeoutId);
 
