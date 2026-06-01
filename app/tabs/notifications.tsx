@@ -2,12 +2,13 @@ import { useNotificationsSyncList } from '@/hooks/fetch/notifications-sync';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, RefreshControl } from 'react-native';
-import { View, ScrollView, YGroup, Button, Text, YStack } from 'tamagui';
+import { View, ScrollView, YGroup, Button, Text, YStack, Spinner } from 'tamagui';
 
 const NotificationsScreen = () => {
   const {
     data: globalNotifications,
     refetch: refetchNotificationsSync,
+    fetchNextPage: fetchNextPageNotificationsSync,
     hasNextPage: hasNextPageNotificationsSync,
     isFetchingNextPage: isFetchingNextPageNotificationsSync,
     isRefetching: isRefetchingNotificationsSync,
@@ -22,7 +23,7 @@ const NotificationsScreen = () => {
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
     const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 50;
-    if (isCloseToBottom && hasNextPageNotificationsSync && !isFetchingNextPageNotificationsSync) refetchNotificationsSync();
+    if (isCloseToBottom && hasNextPageNotificationsSync && !isFetchingNextPageNotificationsSync) fetchNextPageNotificationsSync();
   };
 
   return (
@@ -84,6 +85,12 @@ const NotificationsScreen = () => {
                 );
               });
             })()}
+
+            {isFetchingNextPageNotificationsSync ? (
+              <View height={160} width={'100%'} justify='center' items='center'>
+                <Spinner size={'large'} color='$color10' />
+              </View>
+            ) : <View height={160} />}
           </YGroup>
         </ScrollView>
       </View>

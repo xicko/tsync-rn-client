@@ -1,26 +1,44 @@
 import { getNotificationsList } from "@/controller/notificationsSyncController";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 
 export function useNotificationsSyncList() {
-    return useInfiniteQuery({
-        queryKey: ['notifications-sync-list'],
-        queryFn: async ({ pageParam = 1 }) => {
-            const data = await getNotificationsList(pageParam, 10);
+    const [initialTimestamp, setInitialTimestamp] = useState(() => Date.now());
+
+    const query = useInfiniteQuery({
+        queryKey: ['notifications-sync-list', initialTimestamp],
+        queryFn: async ({ pageParam }) => {
+            const data = await getNotificationsList({
+                limit: 10,
+                timestamp: pageParam,
+            });
 
             if (!data) return null;
             return data;
         },
-        initialPageParam: 1,
-        getNextPageParam: (lastPage, allPages) => {
-        if (lastPage?.pagination?.hasNext) {
-            return allPages?.length + 1;
-        }
+        initialPageParam: initialTimestamp,
+        getNextPageParam: (lastPage) => {
+            if (lastPage?.pagination?.hasNext && lastPage.data) {
+                return Number(lastPage.data[lastPage.data.length - 1].android.timestamp);
+            }
 
-        return undefined;
+            return undefined;
         },
 
         refetchOnWindowFocus: true,
         refetchOnMount: true,
         refetchOnReconnect: true,
+
+        staleTime: 0,
+        gcTime: 0,
     });
+
+    const refetch = useCallback(() => {
+        setInitialTimestamp(Date.now());
+    }, []);
+
+    return {
+        ...query,
+        refetch,
+    };
 };
