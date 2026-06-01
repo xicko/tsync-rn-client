@@ -1,117 +1,92 @@
-import { receiveNotification } from '@/controller/notificationsSyncController';
-import { useLocalNotifications } from '@/hooks/local/notifications';
-import { useDeviceStore } from '@/store/deviceStore';
-import { storage } from '@/utils/storage';
-import { Globe, Settings2, Smartphone } from '@tamagui/lucide-icons';
+import { useNotificationsSyncList } from '@/hooks/fetch/notifications-sync';
 import dayjs from 'dayjs';
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
-import { Platform } from 'react-native';
-import { View, ScrollView, YGroup, Button, Text, YStack, XStack } from 'tamagui';
+import { useMemo } from 'react';
+import { NativeScrollEvent, NativeSyntheticEvent, RefreshControl } from 'react-native';
+import { View, ScrollView, YGroup, Button, Text, YStack } from 'tamagui';
 
 const NotificationsScreen = () => {
-  const thisTailscaleDevice = useDeviceStore((d) => d.thisTailscaleDevice);
-
-  const [selectedTab, setSelectedTab] = useState<'global' | 'local'>('global');
-
-  const { data: localNotifications, refetch: refetchLocalNotifications } = useLocalNotifications();
-  const localNotifs = useMemo(() => {
-    return (localNotifications || []).filter(Boolean).sort((a, b) => {
-      return b.timestamp - a.timestamp;
-    });
-  }, [localNotifications]);
-
-  useFocusEffect(
-    useCallback(() => {
-      refetchLocalNotifications();
-    }, [])
-  );
+  const {
+    data: globalNotifications,
+    refetch: refetchNotificationsSync,
+    hasNextPage: hasNextPageNotificationsSync,
+    isFetchingNextPage: isFetchingNextPageNotificationsSync,
+    isRefetching: isRefetchingNotificationsSync,
+  } = useNotificationsSyncList();
+  const globalNotifs = useMemo(() => {
+    const flattened = globalNotifications?.pages?.flatMap(page => page?.data || []) || [];
+    return flattened.map((a) => ({
+      ...a,
+      tailscaleDevice: a.tailscaleDevice,
+    }));
+  }, [globalNotifications]);  
+  const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 50;
+    if (isCloseToBottom && hasNextPageNotificationsSync && !isFetchingNextPageNotificationsSync) refetchNotificationsSync();
+  };
 
   return (
     <View flex={1} bg="$background">
-      <XStack gap="$0">
-        <Button
-          flex={1}
-          bg={selectedTab !== 'global' ? 'transparent' : undefined}
-          rounded={0}
-          icon={Globe}
-          onPress={() => setSelectedTab('global')}>
-          <Text>Global</Text>
-        </Button>
-        <Button
-          flex={1}
-          bg={selectedTab !== 'local' ? 'transparent' : undefined}
-          rounded={0}
-          icon={Smartphone}
-          onPress={() => setSelectedTab('local')}>
-          <Text>Local</Text>
-        </Button>
-      </XStack>
+      <View flex={1} z={0} overflow='hidden'>
+        <ScrollView
+          onScroll={onScroll}
+          refreshControl={<RefreshControl
+            refreshing={isRefetchingNotificationsSync}
+            onRefresh={() => {
+              refetchNotificationsSync();
+            }}
+          />}
+          style={{
+            flexGrow: 0,
+          }}
+        >
+          <YGroup m={'$3'} gap="$0.5">
+            {(() => {
+              if (globalNotifs.length === 0) {
+                return <View justify="center" items='center' py='$8'>
+                  <Text color='$color9'>
+                    No notifications.
+                  </Text>
+                </View>;
+              }
 
-      {/* Global */}
-      {selectedTab === 'global' ? <Text>TODO</Text> : null}
-
-      {/* Local */}
-      {selectedTab === 'local' && Platform.OS === 'android' ? (
-        <View flex={1}>
-          <ScrollView
-            style={{
-              flexGrow: 0,
-            }}>
-            <YGroup m={'$3'} gap="$0.5">
-              {localNotifs.map((notif, i) => {
+              return globalNotifs.map((notif, i) => {
                 return (
                   <Button
-                    key={notif.timestamp}
+                    key={notif._id}
                     height={'auto'}
                     py="$2.5"
-                    width={'100%'}
-                    onLongPress={async () => {
-                      if (!thisTailscaleDevice?.id) return;
-                      const res = await receiveNotification(thisTailscaleDevice?.id, {
-                        type: 'android',
-                        android: notif,
-                      });
-
-                      console.log({ res });
-                    }}>
+                    width={'100%'}>
                     <YStack width={'100%'}>
                       <Text fontSize={'$4'} fontWeight={600}>
-                        {notif.title}
+                        {notif.android.title}
                       </Text>
 
-                      {notif.text ? (
+                      {notif.android.text ? (
                         <Text fontSize={'$4'} fontWeight={600}>
-                          {notif.text || 'No text.'}
+                          {notif.android.text || 'No text.'}
                         </Text>
                       ) : null}
 
-                      <Text color="$color8">{notif.packageName}</Text>
+                      {notif.tailscaleDevice?.name ? (
+                        <Text color="$color8">
+                          {notif?.tailscaleDevice?.name?.split('.')[0] || ''}
+                          </Text>
+                      ) : null}
+
+                      <Text color="$color8">{notif.android.packageName}</Text>
 
                       <Text color="$color8">
-                        {dayjs(notif.timestamp).format('YYYY/MM/DD - HH:mm:ss')}
+                        {dayjs(notif.android.timestamp).format('YYYY/MM/DD - HH:mm:ss')}
                       </Text>
                     </YStack>
                   </Button>
                 );
-              })}
-            </YGroup>
-          </ScrollView>
-
-          {/* TODO */}
-          <Button
-            position="absolute"
-            b={24}
-            r={24}
-            themeInverse
-            icon={Settings2}
-            aspectRatio={1}
-            onPress={() => {
-              storage.delete('local_notifications');
-            }}
-          />
-        </View>
-      ) : null}
+              });
+            })()}
+          </YGroup>
+        </ScrollView>
+      </View>
     </View>
   );
 };

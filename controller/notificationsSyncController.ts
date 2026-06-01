@@ -1,5 +1,7 @@
 import { useZust } from "@/store/store";
 import { CollectedNotification } from "@/types/notifications.interface";
+import { PaginationResponse } from "@/types/pagination.interface";
+import { TailscaleDevice } from "@/types/tailscale.interface";
 
 export async function receiveNotification(tailscaleId: string, body: CollectedNotification): Promise<boolean> {
     const domain = useZust.getState().domainAddress;
@@ -22,6 +24,46 @@ export async function receiveNotification(tailscaleId: string, body: CollectedNo
     } catch (error) {
         if (error instanceof Error && __DEV__) console.log(error.message);
         return false;
+    } finally {
+        clearTimeout(timeoutId);
+    }
+}
+
+interface DataType extends CollectedNotification {
+    _id: string;
+    tailscaleDevice?: TailscaleDevice;
+};
+export interface NotificationsSyncListResponseType {
+    success: boolean,
+    pagination?: PaginationResponse,
+    data?: DataType[];
+};
+export async function getNotificationsList(page: number, limit: number): Promise<NotificationsSyncListResponseType | null> {
+    const url = useZust.getState().domainAddress;
+    const domain = new URL(`${url}/api/notifications-sync/list`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    domain.searchParams.append('page', String(page));
+    domain.searchParams.append('limit', String(limit));
+    
+    try {
+        const response = await fetch(domain, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            signal: controller.signal,
+        });
+        
+        const data = await response.json();
+        
+        clearTimeout(timeoutId);
+
+        return data;
+    } catch (error) {
+        if (error instanceof Error && __DEV__) console.log(error.message);
+        return null;
     } finally {
         clearTimeout(timeoutId);
     }
