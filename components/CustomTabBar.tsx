@@ -6,6 +6,7 @@ import { usePathname } from 'expo-router';
 import { View, Text, XStack, YStack as TamaguiYStack, Circle, useTheme, ScrollView } from 'tamagui';
 import Animated, { withTiming, LinearTransition } from 'react-native-reanimated';
 import {
+  Bell,
   Clock,
   Layers2,
   MessageCircle,
@@ -137,6 +138,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
       '/tabs/shell': 'shell',
       '/tabs/appstatus': 'appstatus',
       '/tabs/message': 'message',
+      '/tabs/notifications': 'notifications',
     } as const;
     return pathToTab[pathname as keyof typeof pathToTab] || state.routeNames[state.index];
   };
@@ -200,6 +202,14 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
           activeIcon={<MessageCircle />}
           isActive={activeTab === 'message'}
           onPress={() => handleTabPress('message')}
+        />
+
+        <TabItem
+          label="Notifications"
+          icon={<Bell strokeWidth={1.3} color={'$color6'} />}
+          activeIcon={<Bell />}
+          isActive={activeTab === 'notifications'}
+          onPress={() => handleTabPress('notifications')}
         />
       </XStack>
     </ScrollView>

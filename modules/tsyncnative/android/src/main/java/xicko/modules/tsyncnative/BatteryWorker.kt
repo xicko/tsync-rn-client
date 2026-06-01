@@ -40,7 +40,7 @@ class BatteryWorker(
     }
 
     MMKV.initialize(this.applicationContext)
-    val mmkv = MMKV.mmkvWithID("root")
+    val mmkv = MMKV.mmkvWithID("root", MMKV.MULTI_PROCESS_MODE)
     val domain = mmkv.decodeString("domain", null) ?: throw Exception("domain not found")
 
     val thisTailscaleDeviceStr = mmkv.decodeString("thisTailscaleDevice", null) ?: throw Exception("thisTailscaleDevice not found")

@@ -144,6 +144,19 @@ export default function TabLayout() {
           headerTitleContainerStyle: headerTitleContainerStyle,
         }}
       />
+
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          headerShown: true,
+          headerTitle: 'Notifications',
+          headerTitleStyle: headerTitleStyle,
+          headerTitleAlign: 'center',
+          headerStyle: headerStyle,
+          headerShadowVisible: false,
+          headerTitleContainerStyle: headerTitleContainerStyle,
+        }}
+      />
     </Tabs>
   );
 }
