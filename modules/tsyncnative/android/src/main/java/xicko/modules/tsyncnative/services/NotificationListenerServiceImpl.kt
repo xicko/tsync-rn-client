@@ -117,17 +117,6 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
         peopleList
       )
 
-      // TODO: Migrate to sqlite in future
-      val existingRaw = mmkv.decodeString("local_notifications", null)
-      val existing: CollectedNotificationAndroidDataList = try {
-        if (existingRaw == null) throw Exception("null")
-        JsonProvider.json.decodeFromString<CollectedNotificationAndroidDataList>(existingRaw)
-      } catch (e: Exception) {
-        emptyList<CollectedNotificationAndroidData>()
-      }
-      val merged = (existing + collectedNotif).reversed()
-      mmkv.encode("local_notifications", JsonProvider.json.encodeToString(merged))
-
       // Send to server
       val client = HttpClient(CIO) {
         install(HttpTimeout) {
