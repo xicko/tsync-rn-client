@@ -8,6 +8,9 @@ import { SheetManager } from 'react-native-actions-sheet';
 import { View, ScrollView, YGroup, Button, Text, YStack, Spinner, XStack } from 'tamagui';
 import { useNotificationsSyncListFilterStore } from '@/store/notificationsSyncListFilterStore';
 
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
+
 const NotificationsScreen = () => {
   const isWeb = Platform.OS === 'web';
   const now = dayjs();
