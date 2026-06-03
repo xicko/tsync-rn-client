@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { useEffect, useMemo } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, Platform, RefreshControl } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
-import { View, ScrollView, YGroup, Button, Text, YStack, Spinner, XStack } from 'tamagui';
+import { View, ScrollView, YGroup, Button, Text, YStack, Spinner, XStack, Image } from 'tamagui';
 import { useNotificationsSyncListFilterStore } from '@/store/notificationsSyncListFilterStore';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -196,8 +196,10 @@ const NotificationsScreen = () => {
                   <Button
                     key={notif._id}
                     height={'auto'}
-                    py="$2.5"
+                    py="$3"
                     width={'100%'}
+                    items='flex-start'
+                    gap={'$1'}
                     style={{
                       borderTopLeftRadius: isFirst ? 8 : 0,
                       borderTopRightRadius: isFirst ? 8 : 0,
@@ -205,7 +207,16 @@ const NotificationsScreen = () => {
                       borderBottomRightRadius: isLast ? 8 : 0,
                     }}
                   >
-                    <YStack width={'100%'} items='flex-start'>
+                    {notif?.icon ? <Image
+                      source={{
+                        uri: notif.icon
+                      }}
+                      width={40}
+                      height={40}
+                      borderRadius={8}
+                    /> : <View width={40} height={40} bg='$color3' rounded={8} />}
+
+                    <YStack flex={1} items='flex-start'>
                       <Text fontSize={'$4'} fontWeight={600} style={{ textAlign: 'left' }}>
                         {notif.android.title}
                       </Text>

@@ -33,6 +33,7 @@ interface DataType extends CollectedNotification {
     _id: string;
     tailscaleDevice?: TailscaleDevice;
     timestamp: number;
+    icon?: string;
 };
 export interface NotificationsSyncListResponseType {
     success: boolean,
