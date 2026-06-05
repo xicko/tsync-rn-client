@@ -13,6 +13,7 @@ export function useDevices() {
             const devicesArr = data?.devices || [];
             useDeviceStore.getState().setDevices(devicesArr);
 
+            if (devicesArr.length > 0) storage.set('tailscaleDevices', JSON.stringify(devicesArr));
             const thisDevice = devicesArr.find((device) => device.isThisDevice === true);
             if (thisDevice) {
                 useDeviceStore.getState().setThisTailscaleDevice(thisDevice);

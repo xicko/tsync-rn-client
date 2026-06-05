@@ -55,6 +55,7 @@ export interface GetNotificationsListOptions {
     timestamp?: number;
     search?: string;
     os?: string;
+    tailscaleId?: string[];
     startDate?: number | null;
     endDate?: number | null;
 }
@@ -71,6 +72,7 @@ export async function getNotificationsList(options: GetNotificationsListOptions)
 
     if (options.search) domain.searchParams.append('search', options.search);
     if (options.os && options.os !== 'all') domain.searchParams.append('os', options.os);
+    if (options.tailscaleId) domain.searchParams.append('tailscaleId', String(options.tailscaleId.join(',')));
     if (options.startDate) {
         const startMs = dayjs(options.startDate).startOf('day').valueOf();
         domain.searchParams.append('startDate', String(startMs));

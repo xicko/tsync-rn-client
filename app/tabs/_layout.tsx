@@ -83,7 +83,7 @@ export default function TabLayout() {
                 self={'center'}
                 justify="center"
                 items="center"
-                m={'$4'}
+                m={'$5'}
                 p={0}
                 onPress={() => router.push('/settings')}
               />
@@ -162,7 +162,7 @@ export default function TabLayout() {
                 self={'center'}
                 justify="center"
                 items="center"
-                m={'$4'}
+                m={'$5'}
                 p={0}
                 onPress={() => eventEmit.emit('refreshNotificationsSyncList')}
               />

@@ -14,6 +14,7 @@ export function useNotificationsSyncList(filters?: NotificationsSyncListActiveFi
                 timestamp: pageParam,
                 search: filters?.search,
                 os: filters?.os,
+                tailscaleId: filters?.tailscaleId,
                 startDate: filters?.startDate,
                 endDate: filters?.endDate,
             });

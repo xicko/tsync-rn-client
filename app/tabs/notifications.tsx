@@ -1,12 +1,13 @@
 import { useNotificationsSyncList } from '@/hooks/fetch/notifications-sync';
 import { eventEmit } from '@/utils/eventEmit';
-import { Filter, X } from '@tamagui/lucide-icons';
+import { Filter } from '@tamagui/lucide-icons';
 import dayjs from 'dayjs';
 import { useEffect, useMemo } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, Platform, RefreshControl } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
-import { View, ScrollView, YGroup, Button, Text, YStack, Spinner, XStack, Image } from 'tamagui';
+import { View, ScrollView, YGroup, Button, Text, YStack, Spinner, Image } from 'tamagui';
 import { useNotificationsSyncListFilterStore } from '@/store/notificationsSyncListFilterStore';
+import { NotificationsActiveFilters } from '@/components/NotificationsActiveFilters';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -15,10 +16,6 @@ const NotificationsScreen = () => {
   const isWeb = Platform.OS === 'web';
   const now = dayjs();
   const activeFilters = useNotificationsSyncListFilterStore((state) => state.activeFilters);
-  const setActiveFilters = useNotificationsSyncListFilterStore((state) => state.setActiveFilters);
-  const resetFilters = useNotificationsSyncListFilterStore((state) => state.resetFilters);
-
-  const hasActiveFilters = activeFilters.search !== '' || activeFilters.os !== 'all' || activeFilters.startDate !== null || activeFilters.endDate !== null;
 
   const {
     data: globalNotifications,
@@ -27,6 +24,7 @@ const NotificationsScreen = () => {
     hasNextPage: hasNextPageNotificationsSync,
     isFetchingNextPage: isFetchingNextPageNotificationsSync,
     isRefetching: isRefetchingNotificationsSync,
+    isLoading: isLoadingNotificationsSync,
   } = useNotificationsSyncList(activeFilters);
   const globalNotifs = useMemo(() => {
     const flattened = globalNotifications?.pages?.flatMap(page => page?.data || []) || [];
@@ -54,131 +52,23 @@ const NotificationsScreen = () => {
   }, []);
 
   return (
-    <View flex={1} bg="$background">
-      <View flex={1} z={0} overflow='hidden'>
-        {hasActiveFilters ? (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={{
-              flexGrow: 0,
-            }}
-          >
-            <XStack
-              px="$3"
-              py="$2.5"
-              gap="$2.5"
-              items="center"
-            >
-              {activeFilters.search !== '' ? (
-                <XStack
-                  bg="$color5"
-                  px="$2.5"
-                  py="$1.5"
-                  rounded={8}
-                  items="center"
-                  gap="$2"
-                >
-                  <Text fontSize="$3" color="$color">
-                    {'Search: "' + activeFilters.search + '"'}
-                  </Text>
-                  <Button
-                    size="$1.5"
-                    icon={X}
-                    bg={'transparent'}
-                    onPress={() => setActiveFilters({ ...activeFilters, search: '' })}
-                  />
-                </XStack>
-              ) : null}
+    <View flex={1} bg="$background" gap='$3' px='$5'>
+      {/* Filters */}
+      <NotificationsActiveFilters />
 
-              {activeFilters.os !== 'all' ? (
-                <XStack
-                  bg="$color5"
-                  px="$2.5"
-                  py="$1.5"
-                  rounded={8}
-                  items="center"
-                  gap="$2"
-                >
-                  <Text fontSize="$3" color="$color" textTransform="capitalize">
-                    OS: {activeFilters.os.toUpperCase()}
-                  </Text>
-                  <Button
-                    size="$1.5"
-                    icon={X}
-                    bg={'transparent'}
-                    onPress={() => setActiveFilters({ ...activeFilters, os: 'all' })}
-                  />
-                </XStack>
-              ) : null}
-
-              {activeFilters.startDate !== null ? (
-                <XStack
-                  bg="$color5"
-                  px="$2.5"
-                  py="$1.5"
-                  rounded={8}
-                  items="center"
-                  gap="$2"
-                >
-                  <Text fontSize="$3" color="$color">
-                    After: {dayjs(activeFilters.startDate).format('MM/DD/YYYY')}
-                  </Text>
-                  <Button
-                    size="$1.5"
-                    icon={X}
-                    bg={'transparent'}
-                    onPress={() => setActiveFilters({ ...activeFilters, startDate: null })}
-                  />
-                </XStack>
-              ) : null}
-
-              {activeFilters.endDate !== null ? (
-                <XStack
-                  bg="$color5"
-                  px="$2.5"
-                  py="$1.5"
-                  rounded={8}
-                  items="center"
-                  gap="$2"
-                >
-                  <Text fontSize="$3" color="$color">
-                    Before: {dayjs(activeFilters.endDate).format('MM/DD/YYYY')}
-                  </Text>
-                  <Button
-                    size="$1.5"
-                    icon={X}
-                    bg={'transparent'}
-                    onPress={() => setActiveFilters({ ...activeFilters, endDate: null })}
-                  />
-                </XStack>
-              ) : null}
-
-              <Button
-                size="$2"
-                chromeless
-                color="$red10"
-                onPress={resetFilters}
-              >
-                Clear All
-              </Button>
-            </XStack>
-          </ScrollView>
-        ) : null}
-
+      <View flex={1} gap='$2'>
+        {/* Notifications list */}
         <ScrollView
           onScroll={onScroll}
+          scrollEventThrottle={16}
           refreshControl={<RefreshControl
             refreshing={isRefetchingNotificationsSync}
             onRefresh={onRefresh}
           />}
-          style={{
-            flexGrow: 0,
-          }}
         >
-          <YGroup m={'$3'} gap="$0.5">
+          <YGroup gap="$0.5">
             {(() => {
-              if (globalNotifs.length === 0) {
+              if (globalNotifs.length === 0 && !isLoadingNotificationsSync) {
                 return <View justify="center" items='center' py='$8'>
                   <Text color='$color9'>
                     No notifications.
@@ -251,6 +141,17 @@ const NotificationsScreen = () => {
             ) : <View height={160} />}
           </YGroup>
         </ScrollView>
+
+        {(isLoadingNotificationsSync || isRefetchingNotificationsSync) ? <View
+          position='absolute'
+          t={0} b={0} l={0} r={0}
+          justify={'center'} items='center'
+          bg={'$background'}
+          opacity={0.3}
+          pointerEvents='none'
+        >
+          <Spinner color={'$color12'} size='large' />
+        </View> : null}
       </View>
 
       <YGroup
