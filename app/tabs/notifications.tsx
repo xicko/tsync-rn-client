@@ -1,10 +1,22 @@
 import { useNotificationsSyncList } from '@/hooks/fetch/notifications-sync';
+import { eventEmit } from '@/utils/eventEmit';
+import { Filter } from '@tamagui/lucide-icons';
 import dayjs from 'dayjs';
-import { useMemo } from 'react';
-import { NativeScrollEvent, NativeSyntheticEvent, RefreshControl } from 'react-native';
-import { View, ScrollView, YGroup, Button, Text, YStack, Spinner } from 'tamagui';
+import { useEffect, useMemo } from 'react';
+import { NativeScrollEvent, NativeSyntheticEvent, Platform, RefreshControl } from 'react-native';
+import { SheetManager } from 'react-native-actions-sheet';
+import { View, ScrollView, YGroup, Button, Text, YStack, Spinner, Image } from 'tamagui';
+import { useNotificationsSyncListFilterStore } from '@/store/notificationsSyncListFilterStore';
+import { NotificationsActiveFilters } from '@/components/NotificationsActiveFilters';
+
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 
 const NotificationsScreen = () => {
+  const isWeb = Platform.OS === 'web';
+  const now = dayjs();
+  const activeFilters = useNotificationsSyncListFilterStore((state) => state.activeFilters);
+
   const {
     data: globalNotifications,
     refetch: refetchNotificationsSync,
@@ -12,7 +24,8 @@ const NotificationsScreen = () => {
     hasNextPage: hasNextPageNotificationsSync,
     isFetchingNextPage: isFetchingNextPageNotificationsSync,
     isRefetching: isRefetchingNotificationsSync,
-  } = useNotificationsSyncList();
+    isLoading: isLoadingNotificationsSync,
+  } = useNotificationsSyncList(activeFilters);
   const globalNotifs = useMemo(() => {
     const flattened = globalNotifications?.pages?.flatMap(page => page?.data || []) || [];
     return flattened.map((a) => ({
@@ -26,24 +39,36 @@ const NotificationsScreen = () => {
     if (isCloseToBottom && hasNextPageNotificationsSync && !isFetchingNextPageNotificationsSync) fetchNextPageNotificationsSync();
   };
 
+  const onRefresh = () => {
+    refetchNotificationsSync();
+  };
+
+  useEffect(() => {
+    const callback = () => onRefresh();
+    eventEmit.on('refreshNotificationsSyncList', callback);
+    return () => {
+      eventEmit.off('refreshNotificationsSyncList', callback);
+    }
+  }, []);
+
   return (
-    <View flex={1} bg="$background">
-      <View flex={1} z={0} overflow='hidden'>
+    <View flex={1} bg="$background" gap='$3' px='$5'>
+      {/* Filters */}
+      <NotificationsActiveFilters />
+
+      <View flex={1} gap='$2'>
+        {/* Notifications list */}
         <ScrollView
           onScroll={onScroll}
+          scrollEventThrottle={16}
           refreshControl={<RefreshControl
             refreshing={isRefetchingNotificationsSync}
-            onRefresh={() => {
-              refetchNotificationsSync();
-            }}
+            onRefresh={onRefresh}
           />}
-          style={{
-            flexGrow: 0,
-          }}
         >
-          <YGroup m={'$3'} gap="$0.5">
+          <YGroup gap="$0.5">
             {(() => {
-              if (globalNotifs.length === 0) {
+              if (globalNotifs.length === 0 && !isLoadingNotificationsSync) {
                 return <View justify="center" items='center' py='$8'>
                   <Text color='$color9'>
                     No notifications.
@@ -52,19 +77,42 @@ const NotificationsScreen = () => {
               }
 
               return globalNotifs.map((notif, i) => {
+                const isFirst = i === 0;
+                const isLast = i === globalNotifs.length - 1;
+                const timestamp = dayjs(notif.android.timestamp);
+                let format = 'MM/DD - HH:mm:ss';
+                if (timestamp.year() !== now.year()) format = 'YYYY/MM/DD - HH:mm:ss';
                 return (
                   <Button
                     key={notif._id}
                     height={'auto'}
-                    py="$2.5"
-                    width={'100%'}>
-                    <YStack width={'100%'}>
-                      <Text fontSize={'$4'} fontWeight={600}>
+                    py="$3"
+                    width={'100%'}
+                    items='flex-start'
+                    gap={'$1'}
+                    style={{
+                      borderTopLeftRadius: isFirst ? 8 : 0,
+                      borderTopRightRadius: isFirst ? 8 : 0,
+                      borderBottomLeftRadius: isLast ? 8 : 0,
+                      borderBottomRightRadius: isLast ? 8 : 0,
+                    }}
+                  >
+                    {notif?.icon ? <Image
+                      source={{
+                        uri: notif.icon
+                      }}
+                      width={40}
+                      height={40}
+                      borderRadius={8}
+                    /> : <View width={40} height={40} bg='$color3' rounded={8} />}
+
+                    <YStack flex={1} items='flex-start'>
+                      <Text fontSize={'$4'} fontWeight={600} style={{ textAlign: 'left' }}>
                         {notif.android.title}
                       </Text>
 
                       {notif.android.text ? (
-                        <Text fontSize={'$4'} fontWeight={600}>
+                        <Text fontSize={'$4'} fontWeight={500} style={{ textAlign: 'left' }}>
                           {notif.android.text || 'No text.'}
                         </Text>
                       ) : null}
@@ -78,7 +126,7 @@ const NotificationsScreen = () => {
                       <Text color="$color8">{notif.android.packageName}</Text>
 
                       <Text color="$color8">
-                        {dayjs(notif.android.timestamp).format('YYYY/MM/DD - HH:mm:ss')}
+                        {timestamp.format(format)} ({timestamp.fromNow()})
                       </Text>
                     </YStack>
                   </Button>
@@ -93,7 +141,34 @@ const NotificationsScreen = () => {
             ) : <View height={160} />}
           </YGroup>
         </ScrollView>
+
+        {(isLoadingNotificationsSync || isRefetchingNotificationsSync) ? <View
+          position='absolute'
+          t={0} b={0} l={0} r={0}
+          justify={'center'} items='center'
+          bg={'$background'}
+          opacity={0.3}
+          pointerEvents='none'
+        >
+          <Spinner color={'$color12'} size='large' />
+        </View> : null}
       </View>
+
+      <YGroup
+        position='absolute'
+        r={24}
+        b={24}
+      >
+        <Button
+          themeInverse
+          aspectRatio={1}
+          icon={<Filter scale={isWeb ? 2 : undefined} />}
+          onPress={(e) => {
+            e.stopPropagation();
+            SheetManager.show('notifications-sync-list-filter-sheet');
+          }}
+        />
+      </YGroup>
     </View>
   );
 };

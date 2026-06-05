@@ -7,6 +7,7 @@ import SetAdbDeviceIdentifierSheet from './Sheets/SetAdbDeviceIdentifierSheet';
 import SetWindowsMacAddressSheet from './Sheets/SetWindowsMacAddressSheet';
 import IgnoreBatteryOptimizationsSheet from './Sheets/IgnoreBatteryOptimizationsSheet';
 import CronCreateSheet from './Sheets/CronCreateSheet';
+import NotificationsSyncListFilterSheet from './Sheets/NotificationsSyncListFilterSheet';
 
 declare module 'react-native-actions-sheet' {
   interface Sheets {
@@ -48,6 +49,10 @@ declare module 'react-native-actions-sheet' {
     'ignore-battery-optimizations-sheet': SheetDefinition<{
       payload: {};
     }>;
+
+    'notifications-sync-list-filter-sheet': SheetDefinition<{
+      payload: {};
+    }>;
   }
 }
 
@@ -62,6 +67,7 @@ export const Sheets = () => {
         'set-adb-device-identifier-sheet': SetAdbDeviceIdentifierSheet,
         'set-windows-mac-address-sheet': SetWindowsMacAddressSheet,
         'ignore-battery-optimizations-sheet': IgnoreBatteryOptimizationsSheet,
+        'notifications-sync-list-filter-sheet': NotificationsSyncListFilterSheet,
       }}
     />
   );

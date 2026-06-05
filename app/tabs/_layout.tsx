@@ -1,7 +1,7 @@
 import { router, Tabs } from 'expo-router';
 import { headerTextStyle, headerTitleContainerStyle } from '@/constants/theme.constants';
 import { socketStore } from '@/store/socketStore';
-import { Settings } from '@tamagui/lucide-icons';
+import { RefreshCcw, Settings } from '@tamagui/lucide-icons';
 import { Button, useTheme } from 'tamagui';
 import { useDeviceStore } from '@/store/deviceStore';
 import { useState, useEffect } from 'react';
@@ -13,6 +13,7 @@ import { AppState, Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as Constants from 'expo-constants';
 import DevicesHeaderRight from '@/components/Devices/SocketConnectionHeader';
+import { eventEmit } from '@/utils/eventEmit';
 
 export default function TabLayout() {
   const { socket } = socketStore();
@@ -82,11 +83,9 @@ export default function TabLayout() {
                 self={'center'}
                 justify="center"
                 items="center"
-                m={'$4'}
+                m={'$5'}
                 p={0}
-                onPress={() => {
-                  router.push('/settings');
-                }}
+                onPress={() => router.push('/settings')}
               />
             );
           },
@@ -155,6 +154,20 @@ export default function TabLayout() {
           headerStyle: headerStyle,
           headerShadowVisible: false,
           headerTitleContainerStyle: headerTitleContainerStyle,
+          headerLeft: () => {
+            return (
+              <Button
+                aspectRatio={1}
+                icon={RefreshCcw}
+                self={'center'}
+                justify="center"
+                items="center"
+                m={'$5'}
+                p={0}
+                onPress={() => eventEmit.emit('refreshNotificationsSyncList')}
+              />
+            );
+          },
         }}
       />
     </Tabs>
