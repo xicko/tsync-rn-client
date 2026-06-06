@@ -1,22 +1,18 @@
-import { useDeviceStore } from '@/store/deviceStore';
+import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import { TailscaleDevice } from '@/types/tailscale.interface';
 import { Check } from '@tamagui/lucide-icons';
 import { useMemo } from 'react';
 import ActionSheet, { SheetProps, ScrollView, SheetManager } from 'react-native-actions-sheet';
 import { View, Text, Button, YGroup, XStack, H6, YStack, useTheme } from 'tamagui';
 
-const ShellDeviceSelectorSheet: React.FC<SheetProps<'shell-device-selector-sheet'>> = ({
-  sheetId,
-  payload,
-}) => {
-  const { devices } = useDeviceStore();
+const ShellDeviceSelectorSheet: React.FC<SheetProps<'shell-device-selector-sheet'>> = ({ sheetId, payload }) => {
+  const devices = useDeviceStore((s) => s.devices);
   const theme = useTheme();
 
   const androidDevices = useMemo(
     () =>
       devices.filter(
-        (device) =>
-          device.os.toLowerCase() === 'android' && device?.androidConfig?.adb?.port !== undefined
+        (device) => device.os.toLowerCase() === 'android' && device?.androidConfig?.adb?.port !== undefined
       ),
     [devices]
   );
@@ -29,10 +25,7 @@ const ShellDeviceSelectorSheet: React.FC<SheetProps<'shell-device-selector-sheet
   };
 
   return (
-    <ActionSheet
-      id={sheetId}
-      gestureEnabled={true}
-      containerStyle={{ backgroundColor: theme.background.val }}>
+    <ActionSheet id={sheetId} gestureEnabled={true} containerStyle={{ backgroundColor: theme.background.val }}>
       <View p={'$4'} gap={'$2'}>
         <View>
           <H6>Select Device</H6>

@@ -1,79 +1,274 @@
-import { defaultConfig } from '@tamagui/config/v4'
-import { createTamagui, createFont, isWeb } from 'tamagui'
-import { createAnimations } from '@tamagui/animations-moti'
+import { defaultConfig } from '@tamagui/config/v4';
+import { createTamagui, createFont, isWeb } from 'tamagui';
+import { createAnimations } from '@tamagui/animations-moti';
 
 const primitives = {
   gray: {
-    1: '#ffffff', 2: '#f9f9f9', 3: '#f2f2f2', 4: '#ebebeb', 5: '#e0e0e0', 6: '#d4d4d4',
-    7: '#a3a3a3', 8: '#737373', 9: '#525252', 10: '#404040', 11: '#262626', 12: '#171717'
+    1: '#ffffff',
+    2: '#f9f9f9',
+    3: '#f2f2f2',
+    4: '#ebebeb',
+    5: '#e0e0e0',
+    6: '#d4d4d4',
+    7: '#a3a3a3',
+    8: '#737373',
+    9: '#525252',
+    10: '#404040',
+    11: '#262626',
+    12: '#171717',
   },
   slate: {
-    1: '#fcfcfd', 2: '#f8f9fa', 3: '#f1f3f5', 4: '#e9ecef', 5: '#dee2e6', 6: '#ced4da',
-    7: '#adb5bd', 8: '#868e96', 9: '#495057', 10: '#343a40', 11: '#212529', 12: '#0f172a'
+    1: '#fcfcfd',
+    2: '#f8f9fa',
+    3: '#f1f3f5',
+    4: '#e9ecef',
+    5: '#dee2e6',
+    6: '#ced4da',
+    7: '#adb5bd',
+    8: '#868e96',
+    9: '#495057',
+    10: '#343a40',
+    11: '#212529',
+    12: '#0f172a',
   },
   brand: {
-    1: '#f5f9ff', 2: '#e6f0ff', 3: '#d1e3ff', 4: '#b3d1ff', 5: '#85b3ff', 6: '#5294ff',
-    7: '#2477ff', 8: '#005eff', 9: '#004db3', 10: '#003d8d', 11: '#002e6a', 12: '#001a3d'
+    1: '#f5f9ff',
+    2: '#e6f0ff',
+    3: '#d1e3ff',
+    4: '#b3d1ff',
+    5: '#85b3ff',
+    6: '#5294ff',
+    7: '#2477ff',
+    8: '#005eff',
+    9: '#004db3',
+    10: '#003d8d',
+    11: '#002e6a',
+    12: '#001a3d',
   },
   blue: {
-    1: '#f0f7ff', 2: '#e0efff', 3: '#cce5ff', 4: '#99ccff', 5: '#66b2ff', 6: '#3399ff',
-    7: '#007fff', 8: '#0066cc', 9: '#004c99', 10: '#003366', 11: '#001933', 12: '#000c1a'
+    1: '#f0f7ff',
+    2: '#e0efff',
+    3: '#cce5ff',
+    4: '#99ccff',
+    5: '#66b2ff',
+    6: '#3399ff',
+    7: '#007fff',
+    8: '#0066cc',
+    9: '#004c99',
+    10: '#003366',
+    11: '#001933',
+    12: '#000c1a',
   },
   indigo: {
-    1: '#f5f7ff', 2: '#ebefff', 3: '#d6deff', 4: '#b8c6ff', 5: '#94a2ff', 6: '#667aff',
-    7: '#4258ff', 8: '#1a33ff', 9: '#001acc', 10: '#001499', 11: '#000c4d', 12: '#000726'
+    1: '#f5f7ff',
+    2: '#ebefff',
+    3: '#d6deff',
+    4: '#b8c6ff',
+    5: '#94a2ff',
+    6: '#667aff',
+    7: '#4258ff',
+    8: '#1a33ff',
+    9: '#001acc',
+    10: '#001499',
+    11: '#000c4d',
+    12: '#000726',
   },
   violet: {
-    1: '#f8f7ff', 2: '#f1f0ff', 3: '#e1dfff', 4: '#cbc7ff', 5: '#aeabff', 6: '#8a85ff',
-    7: '#665eff', 8: '#4433ff', 9: '#3322cc', 10: '#261a99', 11: '#130d4d', 12: '#090626'
+    1: '#f8f7ff',
+    2: '#f1f0ff',
+    3: '#e1dfff',
+    4: '#cbc7ff',
+    5: '#aeabff',
+    6: '#8a85ff',
+    7: '#665eff',
+    8: '#4433ff',
+    9: '#3322cc',
+    10: '#261a99',
+    11: '#130d4d',
+    12: '#090626',
   },
   pink: {
-    1: '#fff7f9', 2: '#ffeff3', 3: '#ffdee7', 4: '#ffc7d5', 5: '#ffabbf', 6: '#ff85a1',
-    7: '#ff5e84', 8: '#ff3366', 9: '#cc2952', 10: '#991f3d', 11: '#4d0f1f', 12: '#26080f'
+    1: '#fff7f9',
+    2: '#ffeff3',
+    3: '#ffdee7',
+    4: '#ffc7d5',
+    5: '#ffabbf',
+    6: '#ff85a1',
+    7: '#ff5e84',
+    8: '#ff3366',
+    9: '#cc2952',
+    10: '#991f3d',
+    11: '#4d0f1f',
+    12: '#26080f',
   },
   red: {
-    1: '#fffafa', 2: '#ffefef', 3: '#ffdfdf', 4: '#ffc7c7', 5: '#ffaeae', 6: '#ff8e8e',
-    7: '#ff6e6e', 8: '#ff4d4d', 9: '#cc3d3d', 10: '#992e2e', 11: '#4d1717', 12: '#260b0b'
+    1: '#fffafa',
+    2: '#ffefef',
+    3: '#ffdfdf',
+    4: '#ffc7c7',
+    5: '#ffaeae',
+    6: '#ff8e8e',
+    7: '#ff6e6e',
+    8: '#ff4d4d',
+    9: '#cc3d3d',
+    10: '#992e2e',
+    11: '#4d1717',
+    12: '#260b0b',
   },
   orange: {
-    1: '#fffaf5', 2: '#ffefdb', 3: '#ffdfb3', 4: '#ffc780', 5: '#ffae4d', 6: '#ff941a',
-    7: '#e68000', 8: '#cc7100', 9: '#995500', 10: '#663900', 11: '#331c00', 12: '#1a0e00'
+    1: '#fffaf5',
+    2: '#ffefdb',
+    3: '#ffdfb3',
+    4: '#ffc780',
+    5: '#ffae4d',
+    6: '#ff941a',
+    7: '#e68000',
+    8: '#cc7100',
+    9: '#995500',
+    10: '#663900',
+    11: '#331c00',
+    12: '#1a0e00',
   },
   yellow: {
-    1: '#fffdf5', 2: '#fffbeb', 3: '#fff3c2', 4: '#ffeb8f', 5: '#ffe05c', 6: '#ffd629',
-    7: '#f5c300', 8: '#cc9900', 9: '#997300', 10: '#664d00', 11: '#332600', 12: '#1a1300'
+    1: '#fffdf5',
+    2: '#fffbeb',
+    3: '#fff3c2',
+    4: '#ffeb8f',
+    5: '#ffe05c',
+    6: '#ffd629',
+    7: '#f5c300',
+    8: '#cc9900',
+    9: '#997300',
+    10: '#664d00',
+    11: '#332600',
+    12: '#1a1300',
   },
   green: {
-    1: '#f5fff8', 2: '#e6ffef', 3: '#ccffde', 4: '#99ffbc', 5: '#66ff9a', 6: '#33ff78',
-    7: '#00f555', 8: '#00cc47', 9: '#009935', 10: '#006623', 11: '#003312', 12: '#001a09'
+    1: '#f5fff8',
+    2: '#e6ffef',
+    3: '#ccffde',
+    4: '#99ffbc',
+    5: '#66ff9a',
+    6: '#33ff78',
+    7: '#00f555',
+    8: '#00cc47',
+    9: '#009935',
+    10: '#006623',
+    11: '#003312',
+    12: '#001a09',
   },
   teal: {
-    1: '#f5fffb', 2: '#e6fff6', 3: '#ccffec', 4: '#99ffd9', 5: '#66ffc6', 6: '#33ffb3',
-    7: '#00f5a0', 8: '#00cc86', 9: '#009964', 10: '#006643', 11: '#003321', 12: '#001a11'
+    1: '#f5fffb',
+    2: '#e6fff6',
+    3: '#ccffec',
+    4: '#99ffd9',
+    5: '#66ffc6',
+    6: '#33ffb3',
+    7: '#00f5a0',
+    8: '#00cc86',
+    9: '#009964',
+    10: '#006643',
+    11: '#003321',
+    12: '#001a11',
   },
   cyan: {
-    1: '#f5fdff', 2: '#e6faff', 3: '#ccf5ff', 4: '#99ecff', 5: '#66e3ff', 6: '#33d9ff',
-    7: '#00ccf5', 8: '#00aacc', 9: '#007f99', 10: '#005566', 11: '#002b33', 12: '#00151a'
+    1: '#f5fdff',
+    2: '#e6faff',
+    3: '#ccf5ff',
+    4: '#99ecff',
+    5: '#66e3ff',
+    6: '#33d9ff',
+    7: '#00ccf5',
+    8: '#00aacc',
+    9: '#007f99',
+    10: '#005566',
+    11: '#002b33',
+    12: '#00151a',
   },
   lime: {
-    1: '#fdfff5', 2: '#fbffe6', 3: '#f5ffcc', 4: '#ecff99', 5: '#e3ff66', 6: '#d9ff33',
-    7: '#ccf500', 8: '#aacc00', 9: '#7f9900', 10: '#556600', 11: '#2b3300', 12: '#151a00'
-  }
-}
+    1: '#fdfff5',
+    2: '#fbffe6',
+    3: '#f5ffcc',
+    4: '#ecff99',
+    5: '#e3ff66',
+    6: '#d9ff33',
+    7: '#ccf500',
+    8: '#aacc00',
+    9: '#7f9900',
+    10: '#556600',
+    11: '#2b3300',
+    12: '#151a00',
+  },
+};
 
 const appFont = createFont({
-  family: isWeb ? 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' : 'Inter',
+  family: isWeb
+    ? 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+    : 'Inter',
   size: {
-    1: 12, 2: 14, 3: 15, 4: 16, 5: 18, 6: 20, 7: 24, 8: 28, 9: 32, 10: 36, 11: 42, 12: 48, 13: 56, 14: 64, 15: 72, 16: 96
+    1: 12,
+    2: 14,
+    3: 15,
+    4: 16,
+    5: 18,
+    6: 20,
+    7: 24,
+    8: 28,
+    9: 32,
+    10: 36,
+    11: 42,
+    12: 48,
+    13: 56,
+    14: 64,
+    15: 72,
+    16: 96,
   },
   lineHeight: {
-    1: 16, 2: 20, 3: 22, 4: 24, 5: 26, 6: 28, 7: 32, 8: 36, 9: 40, 10: 44, 11: 50, 12: 56, 13: 64, 14: 72, 15: 80, 16: 104
+    1: 16,
+    2: 20,
+    3: 22,
+    4: 24,
+    5: 26,
+    6: 28,
+    7: 32,
+    8: 36,
+    9: 40,
+    10: 44,
+    11: 50,
+    12: 56,
+    13: 64,
+    14: 72,
+    15: 80,
+    16: 104,
   },
   weight: {
-    1: '100', 2: '200', 3: '300', 4: '400', 5: '500', 6: '600', 7: '700', 8: '800', 9: '900'
+    1: '100',
+    2: '200',
+    3: '300',
+    4: '400',
+    5: '500',
+    6: '600',
+    7: '700',
+    8: '800',
+    9: '900',
   },
   letterSpacing: {
-    1: 0, 2: 0, 3: 0, 4: 0, 5: -0.1, 6: -0.2, 7: -0.3, 8: -0.4, 9: -0.5, 10: -0.6, 11: -0.7, 12: -0.8, 13: -0.9, 14: -1.0, 15: -1.2, 16: -1.5
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: -0.1,
+    6: -0.2,
+    7: -0.3,
+    8: -0.4,
+    9: -0.5,
+    10: -0.6,
+    11: -0.7,
+    12: -0.8,
+    13: -0.9,
+    14: -1.0,
+    15: -1.2,
+    16: -1.5,
   },
   face: {
     100: { normal: 'Inter_100Thin', italic: 'Inter_100ThinItalic' },
@@ -84,18 +279,18 @@ const appFont = createFont({
     600: { normal: 'Inter_600SemiBold', italic: 'Inter_600SemiBoldItalic' },
     700: { normal: 'Inter_700Bold', italic: 'Inter_700BoldItalic' },
     800: { normal: 'Inter_800ExtraBold', italic: 'Inter_800ExtraBoldItalic' },
-    900: { normal: 'Inter_900Black', italic: 'Inter_900BlackItalic' }
-  }
-})
+    900: { normal: 'Inter_900Black', italic: 'Inter_900BlackItalic' },
+  },
+});
 
 const getThemePalette = (scale: Record<string, string>, invert = false) => {
-  const palette: Record<string, string> = {}
+  const palette: Record<string, string> = {};
   Object.entries(scale).forEach(([k, v]) => {
-    const key = invert ? 13 - parseInt(k) : parseInt(k)
-    palette[k] = scale[key.toString()] || v
-  })
-  return palette
-}
+    const key = invert ? 13 - parseInt(k) : parseInt(k);
+    palette[k] = scale[key.toString()] || v;
+  });
+  return palette;
+};
 
 const config = createTamagui({
   ...defaultConfig,
@@ -121,24 +316,70 @@ const config = createTamagui({
     },
     radius: {
       ...defaultConfig.tokens.radius,
-      0: 0, 1: 2, 2: 4, 3: 6, 4: 8, 5: 10, 6: 12, 7: 14, 8: 16, 9: 18, 10: 20, 11: 24, 12: 32, true: 8
+      0: 0,
+      1: 2,
+      2: 4,
+      3: 6,
+      4: 8,
+      5: 10,
+      6: 12,
+      7: 14,
+      8: 16,
+      9: 18,
+      10: 20,
+      11: 24,
+      12: 32,
+      true: 8,
     },
     space: {
       ...defaultConfig.tokens.space,
-      0: 0, 1: 4, 2: 6, 3: 12, 4: 16, 5: 24, 6: 64, 7: 32, 8: 48, 9: 64, 10: 96, 11: 128, 12: 160, true: 16
+      0: 0,
+      1: 4,
+      2: 6,
+      3: 12,
+      4: 16,
+      5: 24,
+      6: 64,
+      7: 32,
+      8: 48,
+      9: 64,
+      10: 96,
+      11: 128,
+      12: 160,
+      true: 16,
     },
     size: {
       ...defaultConfig.tokens.size,
-      0: 0, 1: 2, 2: 4, 3: 8, 4: 12, 5: 16, 6: 24, 7: 32, 8: 48, 9: 64, 10: 96, 11: 128, 12: 160, true: 44
+      0: 0,
+      1: 2,
+      2: 4,
+      3: 8,
+      4: 12,
+      5: 16,
+      6: 24,
+      7: 32,
+      8: 48,
+      9: 64,
+      10: 96,
+      11: 128,
+      12: 160,
+      true: 44,
     },
     zIndex: {
       ...defaultConfig.tokens.zIndex,
-      0: 0, 1: 10, 2: 20, 3: 30, 4: 40, 5: 50, 10: 100, true: 0
-    }
+      0: 0,
+      1: 10,
+      2: 20,
+      3: 30,
+      4: 40,
+      5: 50,
+      10: 100,
+      true: 0,
+    },
   },
   fonts: {
     body: appFont,
-    heading: appFont
+    heading: appFont,
   },
   themes: {
     ...defaultConfig.themes,
@@ -198,30 +439,38 @@ const config = createTamagui({
       ...Object.fromEntries(Object.entries(getThemePalette(primitives.blue, true)).map(([k, v]) => [`blue${k}`, v])),
       ...Object.fromEntries(Object.entries(getThemePalette(primitives.red, true)).map(([k, v]) => [`red${k}`, v])),
       ...Object.fromEntries(Object.entries(getThemePalette(primitives.green, true)).map(([k, v]) => [`green${k}`, v])),
-      ...Object.fromEntries(Object.entries(getThemePalette(primitives.orange, true)).map(([k, v]) => [`orange${k}`, v])),
-      ...Object.fromEntries(Object.entries(getThemePalette(primitives.yellow, true)).map(([k, v]) => [`yellow${k}`, v])),
-      ...Object.fromEntries(Object.entries(getThemePalette(primitives.violet, true)).map(([k, v]) => [`violet${k}`, v])),
+      ...Object.fromEntries(
+        Object.entries(getThemePalette(primitives.orange, true)).map(([k, v]) => [`orange${k}`, v])
+      ),
+      ...Object.fromEntries(
+        Object.entries(getThemePalette(primitives.yellow, true)).map(([k, v]) => [`yellow${k}`, v])
+      ),
+      ...Object.fromEntries(
+        Object.entries(getThemePalette(primitives.violet, true)).map(([k, v]) => [`violet${k}`, v])
+      ),
       ...Object.fromEntries(Object.entries(getThemePalette(primitives.cyan, true)).map(([k, v]) => [`cyan${k}`, v])),
       ...Object.fromEntries(Object.entries(getThemePalette(primitives.pink, true)).map(([k, v]) => [`pink${k}`, v])),
       ...Object.fromEntries(Object.entries(getThemePalette(primitives.teal, true)).map(([k, v]) => [`teal${k}`, v])),
       ...Object.fromEntries(Object.entries(getThemePalette(primitives.lime, true)).map(([k, v]) => [`lime${k}`, v])),
       ...Object.fromEntries(Object.entries(getThemePalette(primitives.slate, true)).map(([k, v]) => [`slate${k}`, v])),
-      ...Object.fromEntries(Object.entries(getThemePalette(primitives.indigo, true)).map(([k, v]) => [`indigo${k}`, v])),
-    }
+      ...Object.fromEntries(
+        Object.entries(getThemePalette(primitives.indigo, true)).map(([k, v]) => [`indigo${k}`, v])
+      ),
+    },
   },
   animations: {
     ...defaultConfig?.animations,
     ...createAnimations({
       fast: { type: 'timing', duration: 100 },
       medium: { type: 'timing', duration: 160 },
-      slow: { type: 'timing', duration: 220 }
-    })
-  }
-})
+      slow: { type: 'timing', duration: 220 },
+    }),
+  },
+});
 
-export const tamaguiConfig = config
-export default tamaguiConfig
-export type Conf = typeof tamaguiConfig
+export const tamaguiConfig = config;
+export default tamaguiConfig;
+export type Conf = typeof tamaguiConfig;
 declare module 'tamagui' {
-  interface TamaguiCustomConfig extends Conf { }
+  interface TamaguiCustomConfig extends Conf {}
 }
