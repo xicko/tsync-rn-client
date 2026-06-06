@@ -2,7 +2,7 @@ import { useNotificationsSyncList } from '@/features/NotificationsSync/hooks/not
 import { eventEmit } from '@/utils/eventEmit';
 import { Filter } from '@tamagui/lucide-icons';
 import dayjs from 'dayjs';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, Platform, RefreshControl } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 import { View, ScrollView, YGroup, Button, Text, YStack, Spinner, Image } from 'tamagui';
@@ -10,11 +10,14 @@ import { useNotificationsSyncListFilterStore } from '@/features/NotificationsSyn
 import { NotificationsActiveFilters } from '@/features/NotificationsSync/components/NotificationsActiveFilters';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useSocketStore } from '@/store/socketStore';
+import { CollectedNotificationItemType } from '../controller/notificationsSyncController';
 dayjs.extend(relativeTime);
 
 const NotificationsListScreen = () => {
   const isWeb = Platform.OS === 'web';
   const now = dayjs();
+  const socket = useSocketStore((s) => s.socket);
   const activeFilters = useNotificationsSyncListFilterStore((s) => s.activeFilters);
 
   const {
@@ -26,13 +29,18 @@ const NotificationsListScreen = () => {
     isRefetching: isRefetchingNotificationsSync,
     isLoading: isLoadingNotificationsSync,
   } = useNotificationsSyncList(activeFilters);
+  const [localNotifications, setLocalNotifications] = useState<CollectedNotificationItemType[]>([]);
   const globalNotifs = useMemo(() => {
     const flattened = globalNotifications?.pages?.flatMap((page) => page?.data || []) || [];
-    return flattened.map((a) => ({
-      ...a,
-      tailscaleDevice: a.tailscaleDevice,
-    }));
-  }, [globalNotifications]);
+    const merged = [...flattened, ...localNotifications];
+    const seen = new Set<string>();
+    const deduplicated = merged.filter((item) => {
+      const duplicate = seen.has(item._id);
+      seen.add(item._id);
+      return !duplicate;
+    });
+    return deduplicated.sort((a, b) => b.timestamp - a.timestamp);
+  }, [globalNotifications, localNotifications]);
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
     const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 50;
@@ -41,6 +49,7 @@ const NotificationsListScreen = () => {
   };
 
   const onRefresh = () => {
+    setLocalNotifications([]);
     refetchNotificationsSync();
   };
 
@@ -51,6 +60,20 @@ const NotificationsListScreen = () => {
       eventEmit.off('refreshNotificationsSyncList', callback);
     };
   }, []);
+
+  useEffect(
+    function listenToSocket() {
+      if (!socket) return;
+      const callback = (message: object) => {
+        setLocalNotifications((prev) => [message as CollectedNotificationItemType, ...prev]);
+      };
+      socket.on('receiveNotification', callback);
+      return () => {
+        socket.off('receiveNotification', callback);
+      };
+    },
+    [socket]
+  );
 
   return (
     <View flex={1} bg="$background" gap="$3" px="$3">
@@ -76,7 +99,7 @@ const NotificationsListScreen = () => {
               return globalNotifs.map((notif, i) => {
                 const isFirst = i === 0;
                 const isLast = i === globalNotifs.length - 1;
-                const timestamp = dayjs(notif.android.timestamp);
+                const timestamp = dayjs(notif.timestamp);
                 let format = 'MM/DD - HH:mm:ss';
                 if (timestamp.year() !== now.year()) format = 'YYYY/MM/DD - HH:mm:ss';
                 return (
