@@ -41,7 +41,7 @@ export interface GetNotificationsListOptions {
   startDate?: number | null;
   endDate?: number | null;
 }
-interface DataType extends CollectedNotification {
+export interface CollectedNotificationItemType extends CollectedNotification {
   _id: string;
   tailscaleDevice?: TailscaleDevice;
   timestamp: number;
@@ -58,7 +58,7 @@ export interface NotificationsSyncListResponseType {
     timestamp?: number;
     lastItemTimestamp?: number;
   };
-  data?: DataType[];
+  data?: CollectedNotificationItemType[];
 }
 export async function getNotificationsList(
   options: GetNotificationsListOptions
