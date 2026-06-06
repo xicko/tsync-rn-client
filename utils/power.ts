@@ -1,4 +1,4 @@
-import { showToast } from "./toast";
+import { showToast } from './toast';
 import * as IntentLauncher from 'expo-intent-launcher';
 
 export async function onDisableBatteryOptimization() {
@@ -19,12 +19,11 @@ export async function onDisableBatteryOptimization() {
     if (!res) {
       if (__DEV__) console.log('onDisableBatteryOptimization');
       res = await IntentLauncher.startActivityAsync(IntentLauncher.ActivityAction.IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-    };
+    }
 
     if (__DEV__) console.log(JSON.stringify(res, null, 2));
-    
+
     showToast({
-      // text1: JSON.stringify(res, null, 2),
       text1: 'Disabled',
     });
   } catch (error) {
@@ -33,4 +32,4 @@ export async function onDisableBatteryOptimization() {
       text1: 'Failed to disable battery optimization',
     });
   }
-};
+}

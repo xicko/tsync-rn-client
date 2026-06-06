@@ -1,32 +1,3 @@
-// ============================================
-// Socket response types
-export interface SocketCommandAck {
-  type: 'ack';
-  command: string;
-  success: boolean;
-  message?: string;
-  timestamp: string;
-}
-
-export interface SocketStatusUpdate {
-  type: 'status';
-  deviceId: string;
-  online: boolean;
-  timestamp: string;
-}
-
-export interface SocketErrorResponse {
-  type: 'error';
-  code: string;
-  message: string;
-  timestamp: string;
-}
-
-export type SocketResponse =
-  | SocketCommandAck
-  | SocketStatusUpdate
-  | SocketErrorResponse;
-// ============================================
 export interface TailscaleClientConnectivity {
   endpoints?: string[];
   mappingVariesByDestIP?: boolean;
@@ -94,7 +65,7 @@ export interface TailscaleDevice {
   isThisDevice?: boolean;
 
   battery?: BatteryStatus;
-  
+
   androidConfig?: {
     adb?: {
       port?: number;
@@ -121,7 +92,5 @@ export interface BatteryStatus {
 export interface DeviceListItem extends TailscaleDevice {
   /** True when connectedToControl AND lastSeen within the past 5 minutes */
   isActive: boolean;
-  /** Most recent socket message received from this device, if any */
-  lastSocketResponse: SocketResponse | null;
 }
 // ==================================================

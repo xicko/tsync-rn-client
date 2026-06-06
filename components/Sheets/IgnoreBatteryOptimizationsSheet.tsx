@@ -2,9 +2,7 @@ import ActionSheet, { SheetManager, SheetProps } from 'react-native-actions-shee
 import { Button, XGroup, YStack, Text, useTheme } from 'tamagui';
 import tsyncnativeModule from '@/modules/tsyncnative';
 
-const IgnoreBatteryOptimizationsSheet: React.FC<
-  SheetProps<'ignore-battery-optimizations-sheet'>
-> = ({ sheetId }) => {
+const IgnoreBatteryOptimizationsSheet: React.FC<SheetProps<'ignore-battery-optimizations-sheet'>> = ({ sheetId }) => {
   const theme = useTheme();
 
   return (

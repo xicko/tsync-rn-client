@@ -1,8 +1,8 @@
-import { ExpoConfig } from "expo/config";
+import { ExpoConfig } from 'expo/config';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import * as tsyncNativePlugin from './modules/tsyncnative/app.plugin.cjs'
+import * as tsyncNativePlugin from './modules/tsyncnative/app.plugin.cjs';
 
 dotenv.config();
 
@@ -16,11 +16,11 @@ export default ({ config }: { config: ExpoConfig }) => {
       fs.writeFileSync(gsPath, decoded);
       hasGoogleServices = true;
     } catch (e) {
-      console.warn("Could not decode GOOGLE_SERVICES_JSON_B64 base64 string", e);
+      console.warn('Could not decode GOOGLE_SERVICES_JSON_B64 base64 string', e);
     }
   }
   const androidConfig = { ...config.android };
-  if (hasGoogleServices) androidConfig.googleServicesFile = "./google-services.json";
+  if (hasGoogleServices) androidConfig.googleServicesFile = './google-services.json';
 
   return {
     ...config,
@@ -31,9 +31,6 @@ export default ({ config }: { config: ExpoConfig }) => {
       EXPO_PUBLIC_BASE_API_URL: process.env.EXPO_PUBLIC_BASE_API_URL || '',
       EXPO_PUBLIC_ONESIGNAL_APPID: process.env.EXPO_PUBLIC_ONESIGNAL_APPID || '',
     },
-    plugins: [
-      ...(config?.plugins || []),
-      tsyncNativePlugin.default,
-    ]
-  }
-}
+    plugins: [...(config?.plugins || []), tsyncNativePlugin.default],
+  };
+};

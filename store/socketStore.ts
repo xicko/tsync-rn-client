@@ -1,10 +1,10 @@
 import { io, Socket } from 'socket.io-client';
 import { create } from 'zustand';
-import { getDevices } from '@/controller/devicesController';
-import { useZust } from './store';
+import { getDevices } from '@/features/Devices/controller/devicesController';
+import { useDomainStore } from './domainStore';
 import { Platform } from 'react-native';
 
-export interface ZustState {
+export interface SocketState {
   socket: Socket | null;
   setSocket: (val: Socket | null) => void;
 
@@ -16,7 +16,7 @@ export interface ZustState {
   disconnectSocket: () => Promise<void>;
 }
 
-export const socketStore = create<ZustState>((set, get) => ({
+export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   setSocket: (val) => set({ socket: val }),
 
@@ -34,14 +34,14 @@ export const socketStore = create<ZustState>((set, get) => ({
     const device = deviceData.devices.find((f) => f.isThisDevice === true);
     if (!device && Platform.OS !== 'web') return;
 
-    const domain = useZust.getState().domainAddress;
+    const domain = useDomainStore.getState().domainAddress;
 
     const newSocket = io(domain, {
       timeout: 30000,
       reconnection: true,
       secure: true,
       query: {
-        ...device
+        ...device,
       },
       transports: ['websocket', 'polling'],
     });

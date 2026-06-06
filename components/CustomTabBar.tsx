@@ -5,14 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePathname } from 'expo-router';
 import { View, Text, XStack, YStack as TamaguiYStack, Circle, useTheme, ScrollView } from 'tamagui';
 import Animated, { withTiming, LinearTransition } from 'react-native-reanimated';
-import {
-  Bell,
-  Clock,
-  Layers2,
-  MessageCircle,
-  MonitorSmartphone,
-  TerminalSquare,
-} from '@tamagui/lucide-icons';
+import { Bell, Clock, Layers2, MessageCircle, MonitorSmartphone, TerminalSquare } from '@tamagui/lucide-icons';
 
 interface CustomTabBarProps extends BottomTabBarProps {}
 
@@ -52,7 +45,6 @@ const TabItem = ({
   isLoading?: boolean;
 }) => {
   const theme = useTheme({ inverse: false });
-  // const iconColor = isActive ? theme.accent6.val : theme.color8.val;
 
   return (
     <AnimatedYStack
@@ -71,15 +63,7 @@ const TabItem = ({
 
         {/* Badge Indicator */}
         {badgeCount !== undefined && badgeCount > 0 && (
-          <Circle
-            position="absolute"
-            t={-4}
-            r={-8}
-            size={18}
-            bg="$red6"
-            items="center"
-            justify="center"
-            z={10}>
+          <Circle position="absolute" t={-4} r={-8} size={18} bg="$red6" items="center" justify="center" z={10}>
             <Text color="white" fontWeight="500" fontSize="$1">
               {badgeCount}
             </Text>
@@ -105,11 +89,7 @@ const TabItem = ({
       </View>
 
       {isActive && (
-        <Animated.View
-          entering={EnteringHeight}
-          exiting={ExitingHeight}
-          style={{ overflow: 'hidden' }}
-        >
+        <Animated.View entering={EnteringHeight} exiting={ExitingHeight} style={{ overflow: 'hidden' }}>
           <Text
             fontSize={11}
             fontWeight={isActive ? '400' : '300'}
@@ -118,8 +98,7 @@ const TabItem = ({
             style={{
               alignSelf: 'center',
               textAlign: 'center',
-            }}
-          >
+            }}>
             {label}
           </Text>
         </Animated.View>
@@ -155,10 +134,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
   };
 
   return (
-    <ScrollView
-      horizontal
-      style={{ flexGrow: 0, borderTopWidth: 1, borderColor: tamaguiTheme.color3.val }}
-    >
+    <ScrollView horizontal style={{ flexGrow: 0, borderTopWidth: 1, borderColor: tamaguiTheme.color3.val }}>
       <XStack
         bg="$background"
         pb={insets.bottom > 0 ? insets.bottom : '$4'}
@@ -166,8 +142,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
         justify="space-between"
         px="$3"
         gap="$5"
-        elevation="$2"
-      >
+        elevation="$2">
         <TabItem
           label="Devices"
           icon={<MonitorSmartphone strokeWidth={1.3} color={'$color7'} />}

@@ -9,11 +9,12 @@ export interface ThemeState {
 
 export const useThemeStore = create<ThemeState>((set) => ({
   theme: (() => {
-    const cache = Platform.OS === 'web'
-      ? typeof window !== 'undefined'
-        ? localStorage.getItem('theme')
-        : 'dark'
-      : storage.getString('theme');
+    const cache =
+      Platform.OS === 'web'
+        ? typeof window !== 'undefined'
+          ? localStorage.getItem('theme')
+          : 'dark'
+        : storage.getString('theme');
     if (cache) return cache as 'light' | 'dark';
     return 'dark';
   })(),

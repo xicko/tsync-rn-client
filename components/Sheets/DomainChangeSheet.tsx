@@ -1,4 +1,4 @@
-import { useZust } from '@/store/store';
+import { useDomainStore } from '@/store/domainStore';
 import { RotateCcw } from '@tamagui/lucide-icons';
 import { useState } from 'react';
 import ActionSheet, { SheetProps } from 'react-native-actions-sheet';
@@ -8,7 +8,8 @@ import { showToast } from '@/utils/toast';
 import { Platform } from 'react-native';
 
 const DomainChangeSheet: React.FC<SheetProps<'domain-change-sheet'>> = ({ sheetId }) => {
-  const { domainAddress, setDomainAddress } = useZust();
+  const domainAddress = useDomainStore((s) => s.domainAddress);
+  const setDomainAddress = useDomainStore((s) => s.setDomainAddress);
   const theme = useTheme();
 
   const [input, setInput] = useState<string>('');
@@ -22,7 +23,6 @@ const DomainChangeSheet: React.FC<SheetProps<'domain-change-sheet'>> = ({ sheetI
       setDomainAddress(val);
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      // await ExpoUpdates.reloadAsync();
       if (Platform.OS === 'android') {
         const tsyncnativeModule = (await import('@/modules/tsyncnative')).default;
         tsyncnativeModule.reloadApp();
@@ -41,21 +41,10 @@ const DomainChangeSheet: React.FC<SheetProps<'domain-change-sheet'>> = ({ sheetI
       <YStack p={'$5'} gap={'$4'}>
         <Text>Current: {domainAddress}</Text>
 
-        <Input
-          value={input}
-          onChangeText={setInput}
-          autoCorrect={false}
-          autoComplete="off"
-          autoCapitalize="none"
-        />
+        <Input value={input} onChangeText={setInput} autoCorrect={false} autoComplete="off" autoCapitalize="none" />
 
         <XGroup gap={'$0.5'}>
-          <Button
-            aspectRatio={1}
-            themeInverse
-            icon={RotateCcw}
-            onPress={() => changeDomain(domain)}
-          />
+          <Button aspectRatio={1} themeInverse icon={RotateCcw} onPress={() => changeDomain(domain)} />
 
           <Button flex={1} themeInverse onPress={() => changeDomain(input)}>
             Save

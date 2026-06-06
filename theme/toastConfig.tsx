@@ -10,13 +10,7 @@ interface CustomToastProps extends BaseToastProps {
 
 const ToastLayout = ({ text1, text2, onPress, insets }: CustomToastProps) => {
   return (
-    <View
-      pointerEvents="box-none"
-      // width="100%"
-      maxW="100%"
-      items="center"
-      justify="center"
-      mt={insets?.top ? insets.top / 2 : 12}>
+    <View pointerEvents="box-none" maxW="100%" items="center" justify="center" mt={insets?.top ? insets.top / 2 : 12}>
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => {

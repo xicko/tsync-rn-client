@@ -4,32 +4,42 @@ import { ChangeEventPayload } from './tsyncnative.types';
 
 type tsyncnativeModuleEvents = {
   onChange: (params: ChangeEventPayload) => void;
-}
+};
 
 class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
   reloadApp() {
     window.location.reload();
-  };
+  }
 
-  isIgnoringBatteryOptimizations() {};
-  disableBatteryOptimizations() {};
+  isIgnoringBatteryOptimizations() {}
+  disableBatteryOptimizations() {}
 
-  openTS(): void {};
-  connectTS(): void {};
-  disconnectTS(): void {};
-  
-  startConnectionWorker(): void {};
-  startBatteryWorker(): void {};
+  openTS(): void {}
+  connectTS(): void {}
+  disconnectTS(): void {}
 
-  isRooted(): boolean { return false; };
-  openTSRoot(): void {};
+  startConnectionWorker(): void {}
+  startBatteryWorker(): void {}
 
-  disableOptimizationsRoot(packageName?: string): boolean { return false; };
-  blockNotificationsRoot(packageName?: string): boolean { return false; };
-  retrieveBatteryStatus(): string { return '' };
+  isRooted(): boolean {
+    return false;
+  }
+  openTSRoot(): void {}
 
-  isNotificationListenerEnabled(): boolean { return false };
-  startNotificationListenerService(): void {};
-};
+  disableOptimizationsRoot(packageName?: string): boolean {
+    return false;
+  }
+  blockNotificationsRoot(packageName?: string): boolean {
+    return false;
+  }
+  retrieveBatteryStatus(): string {
+    return '';
+  }
+
+  isNotificationListenerEnabled(): boolean {
+    return false;
+  }
+  startNotificationListenerService(): void {}
+}
 
 export default registerWebModule(tsyncnativeModule, 'tsyncnativeModule');

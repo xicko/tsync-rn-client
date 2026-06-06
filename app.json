@@ -4,11 +4,7 @@
     "slug": "tsync",
     "version": "1.0.0",
     "scheme": "tsync",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
+    "platforms": ["ios", "android", "web"],
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -51,9 +47,7 @@
       [
         "expo-asset",
         {
-          "assets": [
-            "assets"
-          ]
+          "assets": ["assets"]
         }
       ]
     ],
@@ -69,9 +63,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#141414"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.xicko.tsync"

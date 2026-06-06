@@ -6,20 +6,12 @@ export const locationAction = async (locationAccess: LocationAccessResultType[])
   if (locationAccess[0].needManualConfiguration || !locationAccess[0].access) {
     await Linking.openSettings();
     return;
-  }
-  else if (locationAccess[1].needManualConfiguration) {
+  } else if (locationAccess[1].needManualConfiguration) {
     await startActivityAsync(ActivityAction.LOCATION_SOURCE_SETTINGS);
-  }
-  else if (locationAccess[2].needManualConfiguration) {
+  } else if (locationAccess[2].needManualConfiguration) {
     await Linking.openSettings();
-  };
+  }
 };
-
-
-
-
-
-
 
 async function checkLocationPermission(): Promise<Location.LocationPermissionResponse | null> {
   try {
@@ -37,7 +29,6 @@ async function requestLocationPermission(): Promise<Location.LocationPermissionR
   }
 }
 
-
 async function checkLocationService(): Promise<boolean> {
   try {
     return await Location.hasServicesEnabledAsync();
@@ -46,28 +37,31 @@ async function checkLocationService(): Promise<boolean> {
   }
 }
 
-
 async function checkPreciseLocation(): Promise<boolean> {
   const currLoc = await Location.getCurrentPositionAsync({
     accuracy: Location.Accuracy.BestForNavigation,
   });
-  return currLoc.coords.accuracy 
-    ? (currLoc.coords.accuracy < 50)
-    : false;
+  return currLoc.coords.accuracy ? currLoc.coords.accuracy < 50 : false;
 }
 
-
-export interface LocationAccessResultType { access: boolean, needManualConfiguration: boolean };
-export const LOCATION_ACCESS_DEFAULT_VALUE = [{
-  access: false,
-  needManualConfiguration: false,
-}, {
-  access: false,
-  needManualConfiguration: false,
-}, {
-  access: false,
-  needManualConfiguration: false,
-}];
+export interface LocationAccessResultType {
+  access: boolean;
+  needManualConfiguration: boolean;
+}
+export const LOCATION_ACCESS_DEFAULT_VALUE = [
+  {
+    access: false,
+    needManualConfiguration: false,
+  },
+  {
+    access: false,
+    needManualConfiguration: false,
+  },
+  {
+    access: false,
+    needManualConfiguration: false,
+  },
+];
 export async function checkLocationAccess(): Promise<LocationAccessResultType[]> {
   let permissionRes = {
     access: false,
@@ -82,10 +76,6 @@ export async function checkLocationAccess(): Promise<LocationAccessResultType[]>
     needManualConfiguration: false,
   };
 
-
-
-
-
   const initPermissionCheck = await checkLocationPermission();
   if (initPermissionCheck?.granted === true) {
     permissionRes.access = true;
@@ -94,11 +84,7 @@ export async function checkLocationAccess(): Promise<LocationAccessResultType[]>
     const permissionRequest = await requestLocationPermission();
     if (!permissionRequest?.granted) permissionRes.access = false;
     if (!permissionRequest?.canAskAgain) permissionRes.needManualConfiguration = true;
-  };
-
-
-
-
+  }
 
   const initServiceCheck = await checkLocationService();
   if (initServiceCheck === true) {
@@ -107,11 +93,8 @@ export async function checkLocationAccess(): Promise<LocationAccessResultType[]>
   } else {
     serviceRes.access = false;
     serviceRes.needManualConfiguration = true;
-  };
+  }
 
-
-
-  
   if (permissionRes.access === true && serviceRes.access === true) {
     const initPreciseCheck = await checkPreciseLocation();
     if (initPreciseCheck === true) {
@@ -120,21 +103,17 @@ export async function checkLocationAccess(): Promise<LocationAccessResultType[]>
     } else {
       preciseRes.access = false;
       preciseRes.needManualConfiguration = true;
-    };
-  };
-
-
-
-
-
-
+    }
+  }
 
   let result = [permissionRes, serviceRes, preciseRes];
-  if (__DEV__) console.log('checkLocationAccess CHECKED',
-    // JSON.stringify(result, null, 2)
-  );
+  if (__DEV__)
+    console.log(
+      'checkLocationAccess CHECKED'
+      // JSON.stringify(result, null, 2)
+    );
   return result;
-};
+}
 
 export async function requestBgPermission(): Promise<boolean> {
   const accessFg = await checkLocationAccess();
@@ -146,8 +125,8 @@ export async function requestBgPermission(): Promise<boolean> {
   res = fp.granted;
   if (fp.canAskAgain && !fp.granted) {
     fp = await Location.requestBackgroundPermissionsAsync();
-  };
+  }
   res = fp.granted;
 
   return res;
-};
+}

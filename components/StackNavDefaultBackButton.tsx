@@ -1,5 +1,5 @@
-import { router } from "expo-router";
-import { TouchableOpacity } from "react-native";
+import { router } from 'expo-router';
+import { TouchableOpacity } from 'react-native';
 import { ArrowLeft } from '@tamagui/lucide-icons';
 
 export const stackNavDefaultBackButton = (overrideCallback?: () => void, overridePadding?: number) => {
@@ -11,9 +11,8 @@ export const stackNavDefaultBackButton = (overrideCallback?: () => void, overrid
         justifyContent: 'center',
         alignItems: 'center',
       }}
-      onPress={overrideCallback ?? (() => router.back())}
-    >
-      <ArrowLeft size={22} self={'center'} justify="center" items='center' />
+      onPress={overrideCallback ?? (() => router.back())}>
+      <ArrowLeft size={22} self={'center'} justify="center" items="center" />
     </TouchableOpacity>
   );
 };

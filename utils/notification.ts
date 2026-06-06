@@ -6,9 +6,9 @@ export async function checkNotificationAccess(request: boolean): Promise<boolean
   let fp = await Notifications.getPermissionsAsync();
   if (fp.canAskAgain && !fp.granted) {
     if (request) fp = await Notifications.requestPermissionsAsync();
-  };
-  
+  }
+
   res = fp.granted;
 
   return res;
-};
+}
