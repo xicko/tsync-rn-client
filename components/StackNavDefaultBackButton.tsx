@@ -19,8 +19,8 @@ export const StackNavDefaultBackButton = (overrideCallback?: () => void, overrid
     }
 
     router.replace('/tabs/devices');
-  }
-  
+  };
+
   return (
     <TouchableOpacity
       activeOpacity={0.6}

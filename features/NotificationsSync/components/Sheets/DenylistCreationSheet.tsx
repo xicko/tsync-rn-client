@@ -7,10 +7,7 @@ import { useCreateDenylistItem } from '../../hooks/denylist';
 import { showToast } from '@/utils/toast';
 import { NotificationsSyncDenylistType } from '../../types/denylist.interface';
 
-const DENYLIST_TYPES: NotificationsSyncDenylistType[] = [
-  'text',
-  'packageIdentifier',
-];
+const DENYLIST_TYPES: NotificationsSyncDenylistType[] = ['text', 'packageIdentifier'];
 
 const DenylistCreationSheet: React.FC<SheetProps<'denylist-creation-sheet'>> = ({ sheetId, payload }) => {
   const theme = useTheme();
@@ -73,8 +70,7 @@ const DenylistCreationSheet: React.FC<SheetProps<'denylist-creation-sheet'>> = (
                 setSelectedType(type);
                 setValue('');
               }}
-              disabled={createMutation.isPending}
-            >
+              disabled={createMutation.isPending}>
               <Text>{type}</Text>
             </Button>
           ))}
@@ -99,25 +95,20 @@ const DenylistCreationSheet: React.FC<SheetProps<'denylist-creation-sheet'>> = (
                   onPress={() => {
                     setSelectedTailscaleId((prev) => (prev === device.id ? undefined : device.id));
                   }}
-                  disabled={createMutation.isPending}
-                >
+                  disabled={createMutation.isPending}>
                   <Text>{device?.name?.split('.')[0] || device.id}</Text>
                 </Button>
               ))}
           </XStack>
         </YStack>
 
-        <XStack gap='$3'>
+        <XStack gap="$3">
           <Button icon={ArrowLeft} onPress={() => SheetManager.hide(sheetId)} disabled={createMutation.isPending}>
-            <Text>
-              Cancel
-            </Text>
+            <Text>Cancel</Text>
           </Button>
 
           <Button flex={1} themeInverse icon={Plus} onPress={handleAdd} disabled={createMutation.isPending}>
-            <Text>
-              {createMutation.isPending ? 'Adding...' : 'Add'}
-            </Text>
+            <Text>{createMutation.isPending ? 'Adding...' : 'Add'}</Text>
           </Button>
         </XStack>
       </View>
@@ -126,4 +117,3 @@ const DenylistCreationSheet: React.FC<SheetProps<'denylist-creation-sheet'>> = (
 };
 
 export default DenylistCreationSheet;
-
