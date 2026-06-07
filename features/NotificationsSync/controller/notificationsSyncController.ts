@@ -2,6 +2,7 @@ import { useDomainStore } from '@/store/domainStore';
 import { CollectedNotification } from '@/features/NotificationsSync/types/notifications.interface';
 import { TailscaleDevice } from '@/types/tailscale.interface';
 import dayjs from 'dayjs';
+import { NotificationsSyncDenylist, NotificationsSyncDenylistType } from '../types/denylist.interface';
 
 // =========================================
 export async function receiveNotification(tailscaleId: string, body: CollectedNotification): Promise<boolean> {
@@ -105,3 +106,113 @@ export async function getNotificationsList(
     clearTimeout(timeoutId);
   }
 }
+
+// =========================================
+export interface GetDenylistListOptions {
+  limit?: number;
+  page?: number;
+}
+export interface DenylistListResponseType {
+  success: boolean;
+  pagination?: {
+    total: number;
+    limit: number;
+    hasNext: boolean;
+    hasPrev?: boolean;
+    page?: number;
+    timestamp?: number;
+    lastItemTimestamp?: number;
+  };
+  data?: NotificationsSyncDenylist[];
+}
+export async function getDenylistList(options: GetDenylistListOptions): Promise<DenylistListResponseType | null> {
+  const url = useDomainStore.getState().domainAddress;
+  const domain = new URL(`${url}/api/notifications-sync/denylist/list`);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  if (options.page) domain.searchParams.append('page', String(options.page));
+  if (options.limit) domain.searchParams.append('limit', String(options.limit));
+
+  try {
+    const response = await fetch(domain, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+    });
+
+    const data = await response.json();
+
+    clearTimeout(timeoutId);
+
+    return data;
+  } catch (error) {
+    if (error instanceof Error && __DEV__) console.log(error.message);
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// =========================================
+export async function createDenylistItem(body: {
+  type: NotificationsSyncDenylistType;
+  text?: string;
+  packageIdentifier?: string;
+  tailscaleId?: string;
+}): Promise<boolean> {
+  const url = useDomainStore.getState().domainAddress;
+  const domain = `${url}/api/notifications-sync/denylist/action/create`;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(domain, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+
+    const data = (await response.json()) as { success: boolean };
+    clearTimeout(timeoutId);
+    return data.success;
+  } catch (error) {
+    if (error instanceof Error && __DEV__) console.log(error.message);
+    return false;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// =========================================
+export async function deleteDenylistItem(id: string): Promise<boolean> {
+  const url = useDomainStore.getState().domainAddress;
+  const domain = `${url}/api/notifications-sync/denylist/action/delete/${id}`;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(domain, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+    });
+
+    const data = (await response.json()) as { success: boolean };
+    clearTimeout(timeoutId);
+    return data.success;
+  } catch (error) {
+    if (error instanceof Error && __DEV__) console.log(error.message);
+    return false;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+

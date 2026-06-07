@@ -8,6 +8,9 @@ import SetWindowsMacAddressSheet from '../../features/Devices/components/Sheets/
 import IgnoreBatteryOptimizationsSheet from './IgnoreBatteryOptimizationsSheet';
 import CronCreateSheet from '../../features/Cron/components/Sheets/CronCreateSheet';
 import NotificationsSyncListFilterSheet from '../../features/NotificationsSync/components/Sheets/NotificationsSyncListFilterSheet';
+import DenylistListSheet from '@/features/NotificationsSync/components/Sheets/DenylistListSheet';
+import { NotificationsSyncDenylist } from '@/features/NotificationsSync/types/denylist.interface';
+import DenylistCreationSheet from '@/features/NotificationsSync/components/Sheets/DenylistCreationSheet';
 
 declare module 'react-native-actions-sheet' {
   interface Sheets {
@@ -53,6 +56,16 @@ declare module 'react-native-actions-sheet' {
     'notifications-sync-list-filter-sheet': SheetDefinition<{
       payload: {};
     }>;
+
+    'denylist-list-sheet': SheetDefinition<{
+      payload: {};
+    }>;
+
+    'denylist-creation-sheet': SheetDefinition<{
+      payload: {
+        editData?: NotificationsSyncDenylist;
+      };
+    }>;
   }
 }
 
@@ -68,6 +81,8 @@ export const Sheets = () => {
         'set-windows-mac-address-sheet': SetWindowsMacAddressSheet,
         'ignore-battery-optimizations-sheet': IgnoreBatteryOptimizationsSheet,
         'notifications-sync-list-filter-sheet': NotificationsSyncListFilterSheet,
+        'denylist-list-sheet': DenylistListSheet,
+        'denylist-creation-sheet': DenylistCreationSheet,
       }}
     />
   );

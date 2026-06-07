@@ -1,8 +1,26 @@
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
 import { ArrowLeft } from '@tamagui/lucide-icons';
 
-export const stackNavDefaultBackButton = (overrideCallback?: () => void, overridePadding?: number) => {
+export const StackNavDefaultBackButton = (overrideCallback?: () => void, overridePadding?: number) => {
+  const router = useRouter();
+
+  const onPress = () => {
+    if (overrideCallback) {
+      overrideCallback();
+      return;
+    }
+
+    const canGoBack = router.canGoBack();
+
+    if (canGoBack) {
+      router.back();
+      return;
+    }
+
+    router.replace('/tabs/devices');
+  }
+  
   return (
     <TouchableOpacity
       activeOpacity={0.6}
@@ -11,7 +29,7 @@ export const stackNavDefaultBackButton = (overrideCallback?: () => void, overrid
         justifyContent: 'center',
         alignItems: 'center',
       }}
-      onPress={overrideCallback ?? (() => router.back())}>
+      onPress={onPress}>
       <ArrowLeft size={22} self={'center'} justify="center" items="center" />
     </TouchableOpacity>
   );
