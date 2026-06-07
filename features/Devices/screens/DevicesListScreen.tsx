@@ -5,7 +5,7 @@ import { useSocketStore } from '@/store/socketStore';
 import { DeviceListItem, TailscaleDevice } from '@/types/tailscale.interface';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, ListRenderItemInfo, RefreshControl } from 'react-native';
+import { FlatList, ListRenderItemInfo, Platform, RefreshControl, ScrollView } from 'react-native';
 import { Button, Spinner, Text, View, XStack, YStack } from 'tamagui';
 import dayjs from 'dayjs';
 import { eventEmit } from '@/utils/eventEmit';
@@ -26,6 +26,7 @@ function toDeviceListItem(device: TailscaleDevice): DeviceListItem {
 
 // ─── Screen ──────────────────────────────────────────────────────────────────
 export default function DevicesListScreen() {
+  const isWeb = Platform.OS === 'web';
   const { data, isLoading, isError, refetch, isRefetching } = useDevices();
   const socket = useSocketStore((s) => s.socket);
   const setSelectedDevice = useDeviceStore((s) => s.setSelectedDevice);
@@ -158,18 +159,41 @@ export default function DevicesListScreen() {
       </XStack>
 
       {/* List */}
-      <FlatList<DeviceListItem>
-        data={devicesList}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        contentContainerStyle={{ paddingBottom: 24 }}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />}
-        ListEmptyComponent={
-          <View p="$6" items="center">
-            <Text color="$color10">No devices match the current filter.</Text>
+      {isWeb ? (
+        <ScrollView refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />}>
+          <View
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: 16,
+              padding: 16,
+              maxWidth: 1800,
+              width: '100%',
+            }}>
+            {devicesList.map((item) => (
+              <DeviceCard key={item.id} item={item} onPress={handlePress} />
+            ))}
           </View>
-        }
-      />
+          {devicesList.length === 0 && (
+            <View p="$6" items="center">
+              <Text color="$color10">No devices match the current filter.</Text>
+            </View>
+          )}
+        </ScrollView>
+      ) : (
+        <FlatList<DeviceListItem>
+          data={devicesList}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />}
+          ListEmptyComponent={
+            <View p="$6" items="center">
+              <Text color="$color10">No devices match the current filter.</Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 }
