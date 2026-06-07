@@ -21,8 +21,7 @@ const DenylistListSheet: React.FC<SheetProps<'denylist-list-sheet'>> = ({ sheetI
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
     const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 50;
-    if (isCloseToBottom && hasNextPage && !isFetchingNextPage)
-      fetchNextPage();
+    if (isCloseToBottom && hasNextPage && !isFetchingNextPage) fetchNextPage();
   };
 
   const performDelete = (itemId: string) => {
@@ -49,21 +48,17 @@ const DenylistListSheet: React.FC<SheetProps<'denylist-list-sheet'>> = ({ sheetI
         performDelete(item._id);
       }
     } else {
-      Alert.alert(
-        'Delete Denylist Item',
-        `Are you sure you want to delete "${displayValue}" from the denylist?`,
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Delete',
-            style: 'destructive',
-            onPress: () => performDelete(item._id),
-          },
-        ]
-      );
+      Alert.alert('Delete Denylist Item', `Are you sure you want to delete "${displayValue}" from the denylist?`, [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => performDelete(item._id),
+        },
+      ]);
     }
   };
 
@@ -74,12 +69,10 @@ const DenylistListSheet: React.FC<SheetProps<'denylist-list-sheet'>> = ({ sheetI
           <H6>Denylist</H6>
         </View>
 
-        <ScrollView style={{ borderRadius: 8, overflow: 'hidden' }} onScroll={onScroll}
-          refreshControl={<RefreshControl
-            refreshing={isLoading || isRefetching}
-            onRefresh={refetch}
-          />}
-        >
+        <ScrollView
+          style={{ borderRadius: 8, overflow: 'hidden' }}
+          onScroll={onScroll}
+          refreshControl={<RefreshControl refreshing={isLoading || isRefetching} onRefresh={refetch} />}>
           <YGroup gap={'$0.5'}>
             {denylist.map((item) => (
               <Button
@@ -87,31 +80,34 @@ const DenylistListSheet: React.FC<SheetProps<'denylist-list-sheet'>> = ({ sheetI
                 height="auto"
                 py={'$3'}
                 onLongPress={() => handleLongPress(item)}
-                disabled={deleteMutation.isPending}
-              >
-                <YStack items='flex-start' flex={1}>
+                disabled={deleteMutation.isPending}>
+                <YStack items="flex-start" flex={1}>
                   <Text>{item.type}</Text>
 
-                  {(item.text || item.packageIdentifier) ? <Text>
-                    {(() => {
-                      if (item.type === 'text') return item.text || '';
-                      if (item.type === 'packageIdentifier') return item.packageIdentifier || '';
-                    })()}
-                  </Text> : null}
+                  {item.text || item.packageIdentifier ? (
+                    <Text>
+                      {(() => {
+                        if (item.type === 'text') return item.text || '';
+                        if (item.type === 'packageIdentifier') return item.packageIdentifier || '';
+                      })()}
+                    </Text>
+                  ) : null}
 
-                  {item.tailscaleId ? <Text>
-                    {tailscaleDevices.find((d) => d.id === item.tailscaleId)?.name?.split('.')[0] || ''}
-                  </Text> : null}
+                  {item.tailscaleId ? (
+                    <Text>{tailscaleDevices.find((d) => d.id === item.tailscaleId)?.name?.split('.')[0] || ''}</Text>
+                  ) : null}
                 </YStack>
               </Button>
             ))}
           </YGroup>
         </ScrollView>
 
-        <Button themeInverse icon={Plus} onPress={() => SheetManager.show('denylist-creation-sheet')} disabled={deleteMutation.isPending}>
-          <Text>
-            Add
-          </Text>
+        <Button
+          themeInverse
+          icon={Plus}
+          onPress={() => SheetManager.show('denylist-creation-sheet')}
+          disabled={deleteMutation.isPending}>
+          <Text>Add</Text>
         </Button>
       </View>
     </ActionSheet>
@@ -119,4 +115,3 @@ const DenylistListSheet: React.FC<SheetProps<'denylist-list-sheet'>> = ({ sheetI
 };
 
 export default DenylistListSheet;
-

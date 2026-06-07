@@ -215,4 +215,3 @@ export async function deleteDenylistItem(id: string): Promise<boolean> {
     clearTimeout(timeoutId);
   }
 }
-
