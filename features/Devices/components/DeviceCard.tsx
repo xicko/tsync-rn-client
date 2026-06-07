@@ -1,5 +1,5 @@
 import { DeviceListItem } from '@/types/tailscale.interface';
-import { OpaqueColorValue, TouchableOpacity } from 'react-native';
+import { OpaqueColorValue, Platform, TouchableOpacity } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 import { Text, View, XStack, Button, YStack, GetThemeValueForKey, useTheme } from 'tamagui';
 import { Image as ExpoImage } from 'expo-image';
@@ -27,14 +27,35 @@ function formatLastSeen(lastSeen?: string): string {
 }
 
 export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
+  const isWeb = Platform.OS === 'web';
   const theme = useThemeStore((s) => s.theme);
   const tamaguiTheme = useTheme();
   const primaryIp = item?.addresses?.[0] ?? '—';
   const hasRoutes = item?.enabledRoutes?.length > 0;
 
   return (
-    <TouchableOpacity activeOpacity={0.75} onPress={() => onPress(item)}>
-      <View mx="$3" my="$2" rounded="$4" p="$3" bg="$color1" borderWidth={1} borderColor="$borderColor">
+    <TouchableOpacity
+      activeOpacity={0.75}
+      onPress={() => onPress(item)}
+      style={
+        isWeb
+          ? {
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+            }
+          : undefined
+      }>
+      <View
+        mx={isWeb ? 0 : '$3'}
+        my={isWeb ? 0 : '$2'}
+        flex={isWeb ? 1 : undefined}
+        rounded="$4"
+        p="$3"
+        bg="$color1"
+        borderWidth={1}
+        borderColor="$borderColor">
         {/* Header row */}
         <XStack justify="space-between" items="center" mb="$2" gap={'$2'}>
           <View width={24} height={24} m="$2">
@@ -110,6 +131,8 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
           {item?.isEphemeral && <Flag label="Ephemeral" color="$color10" bg="$color4" />}
           {item?.isThisDevice && <Flag label="This device" color="$blue7" bg="$blue3" />}
         </XStack>
+
+        {isWeb && <View style={{ flexGrow: 1 }} />}
 
         <Button
           size="$3"
