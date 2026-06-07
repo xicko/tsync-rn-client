@@ -6,7 +6,7 @@ import { tamaguiConfig } from '@/theme/tamagui.config';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/utils/query';
 import { headerTextStyle } from '@/constants/theme.constants';
-import { stackNavDefaultBackButton } from '@/components/StackNavDefaultBackButton';
+import { StackNavDefaultBackButton } from '@/components/StackNavDefaultBackButton';
 import { StatusBar } from 'expo-status-bar';
 import { useSocketStore } from '@/store/socketStore';
 import { useEffect, useState } from 'react';
@@ -199,7 +199,7 @@ function RootLayoutContent() {
               headerTitleAlign: 'center',
               headerStyle: headerStyle,
               headerShadowVisible: false,
-              headerLeft: () => stackNavDefaultBackButton(),
+              headerLeft: () => StackNavDefaultBackButton(),
             }}
           />
 
@@ -213,7 +213,7 @@ function RootLayoutContent() {
               headerTitleAlign: 'center',
               headerStyle: headerStyle,
               headerShadowVisible: false,
-              headerLeft: () => stackNavDefaultBackButton(),
+              headerLeft: () => StackNavDefaultBackButton(),
             }}
           />
         </Stack>

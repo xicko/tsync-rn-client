@@ -1,6 +1,6 @@
 import { useNotificationsSyncList } from '@/features/NotificationsSync/hooks/notifications-sync';
 import { eventEmit } from '@/utils/eventEmit';
-import { Filter } from '@tamagui/lucide-icons';
+import { Filter, Settings } from '@tamagui/lucide-icons';
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, Platform, RefreshControl } from 'react-native';
@@ -183,6 +183,16 @@ const NotificationsListScreen = () => {
       </View>
 
       <YGroup position="absolute" r={24} b={24}>
+        <Button
+          themeInverse
+          aspectRatio={1}
+          icon={<Settings scale={isWeb ? 2 : undefined} />}
+          onPress={(e) => {
+            e.stopPropagation();
+            SheetManager.show('denylist-list-sheet');
+          }}
+        />
+
         <Button
           themeInverse
           aspectRatio={1}
