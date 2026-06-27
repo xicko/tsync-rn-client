@@ -8,15 +8,16 @@ declare class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
   isIgnoringBatteryOptimizations(): boolean;
   disableBatteryOptimizations(packageName?: string): void;
 
+  startConnectionWorker(): void;
+  startBatteryWorker(): void;
+
   openTS(): void;
   connectTS(): void;
   disconnectTS(): void;
 
-  startConnectionWorker(): void;
-  startBatteryWorker(): void;
-
   isRooted(): boolean;
   openTSRoot(): void;
+  connectTSRoot(): void;
 
   disableOptimizationsRoot(packageName?: string): boolean;
   blockNotificationsRoot(packageName?: string): boolean;

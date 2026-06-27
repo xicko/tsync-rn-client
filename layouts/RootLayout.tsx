@@ -177,7 +177,7 @@ function RootLayoutContent() {
   return (
     <KeyboardProvider>
       <SheetProvider>
-        {Platform.OS === 'android' ? <StatusBar style={theme === 'dark' ? 'light' : 'dark'} /> : null}
+        {Platform.OS === 'android' ? <StatusBar style="auto" /> : null}
 
         <Stack
           screenOptions={{
