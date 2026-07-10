@@ -108,7 +108,7 @@ export default function CronsScreen() {
                 {item.name}
               </Text>
               <Switch size="$3" themeInverse checked={item.isActive} onCheckedChange={() => toggleCron(item)}>
-                <Switch.Thumb animation="bouncy" />
+                <Switch.Thumb animation="medium" />
               </Switch>
             </XStack>
             <XStack gap="$2">

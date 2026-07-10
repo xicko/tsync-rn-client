@@ -1,11 +1,11 @@
 import React from 'react';
 import { ActivityIndicator } from 'react-native';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePathname } from 'expo-router';
 import { View, Text, XStack, YStack as TamaguiYStack, Circle, useTheme, ScrollView } from 'tamagui';
 import Animated, { withTiming, LinearTransition } from 'react-native-reanimated';
 import { Bell, Clock, Layers2, MessageCircle, MonitorSmartphone, TerminalSquare } from '@tamagui/lucide-icons';
+import { BottomTabBarProps } from 'expo-router/build/react-navigation/bottom-tabs/types';
 
 interface CustomTabBarProps extends BottomTabBarProps {}
 
