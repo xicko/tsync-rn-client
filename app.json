@@ -52,7 +52,10 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "tsconfigPaths": true
+      "tsconfigPaths": true,
+      "inlineModules": {
+        "watchedDirectories": ["app", "features", "components"]
+      }
     },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
