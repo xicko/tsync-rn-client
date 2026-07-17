@@ -9,7 +9,18 @@ import {
   LocationAccessResultType,
   locationAction,
 } from '@/utils/locationAccessUtils';
-import { ExternalLink, Key, MessageSquareDot, Navigation, Plug, SmartphoneCharging, X } from '@tamagui/lucide-icons';
+import {
+  Battery,
+  ExternalLink,
+  Key,
+  MessageSquare,
+  MessageSquareDot,
+  Navigation,
+  Plug,
+  SmartphoneCharging,
+  Wifi,
+  X,
+} from '@tamagui/lucide-icons';
 import { checkNotificationAccess } from '@/utils/notification';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import { IconProps } from '@tamagui/helpers-icon';
@@ -28,6 +39,8 @@ interface AppStatusRow {
 }
 
 const AppStatusScreen = () => {
+  const isRooted = useDeviceStore((s) => s.isRooted);
+
   const [isIgnoringBatteryOptimizations, setIsIgnoringBatteryOptimizations] = useState<boolean>(false);
 
   const [isNotificationListenerEnabled, setIsNotificationListenerEnabled] = useState<boolean>(false);
@@ -181,7 +194,7 @@ const AppStatusScreen = () => {
           },
           {
             label: 'Open Tailscale (Root)',
-            shown: Platform.OS === 'android',
+            shown: Platform.OS === 'android' && isRooted,
             icon: ExternalLink,
             onPress: () => {
               tsyncnativeModule.openTSRoot();
@@ -211,7 +224,7 @@ const AppStatusScreen = () => {
           {
             label: 'Start Connection Service/Worker',
             shown: Platform.OS === 'android',
-            icon: MessageSquareDot,
+            icon: Wifi,
             onPress: () => {
               tsyncnativeModule.startConnectionWorker();
             },
@@ -219,7 +232,7 @@ const AppStatusScreen = () => {
           {
             label: 'Start Battery Service/Worker',
             shown: Platform.OS === 'android',
-            icon: MessageSquareDot,
+            icon: Battery,
             onPress: () => {
               tsyncnativeModule.startBatteryWorker();
             },
@@ -228,7 +241,7 @@ const AppStatusScreen = () => {
             label: 'Start Notification Listener Service',
             shown: Platform.OS === 'android',
             disabled: isNotificationListenerEnabled,
-            icon: Key,
+            icon: MessageSquare,
             onPress: () => {
               tsyncnativeModule.startNotificationListenerService();
             },
@@ -259,6 +272,7 @@ const AppStatusScreen = () => {
     notificationPermission,
     haveLocationAccess,
     isNotificationListenerEnabled,
+    isRooted,
   ]);
 
   return (
