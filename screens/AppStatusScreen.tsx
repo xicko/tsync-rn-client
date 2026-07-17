@@ -1,6 +1,6 @@
 import { Button, ScrollView, View, YGroup, YStack } from 'tamagui';
 import tsyncnativeModule from '@/modules/tsyncnative';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { AppState, Platform } from 'react-native';
 import {
@@ -12,6 +12,20 @@ import {
 import { ExternalLink, Key, MessageSquareDot, Navigation, Plug, SmartphoneCharging, X } from '@tamagui/lucide-icons';
 import { checkNotificationAccess } from '@/utils/notification';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
+import { IconProps } from '@tamagui/helpers-icon';
+import Section from '@/components/Section';
+import { showToast } from '@/utils/toast';
+
+interface AppStatusRow {
+  label: string;
+  options: {
+    label: string;
+    shown: boolean;
+    disabled?: boolean;
+    icon: React.ComponentType<IconProps>;
+    onPress: () => void | Promise<void>;
+  }[];
+}
 
 const AppStatusScreen = () => {
   const [isIgnoringBatteryOptimizations, setIsIgnoringBatteryOptimizations] = useState<boolean>(false);
@@ -88,157 +102,190 @@ const AppStatusScreen = () => {
     };
   }, [locationAccess]);
 
-  const isAndroid = Platform.OS === 'android';
+  const appStatuses: AppStatusRow[] = useMemo(() => {
+    return [
+      {
+        label: 'Power',
+        options: [
+          {
+            label: 'Disable Battery Optimizations',
+            shown: Platform.OS === 'android',
+            disabled: isIgnoringBatteryOptimizations,
+            icon: SmartphoneCharging,
+            onPress: () => {
+              const res = tsyncnativeModule.disableOptimizationsRoot();
+              if (__DEV__) console.log('disableOptimizationsRoot', res);
+
+              tsyncnativeModule.disableBatteryOptimizations();
+            },
+          },
+        ],
+      },
+      {
+        label: 'Location',
+        options: [
+          {
+            label: 'Location: permission',
+            shown: Platform.OS === 'android' || Platform.OS === 'web',
+            disabled: haveLocationAccess.permission,
+            icon: Navigation,
+            onPress: async () => {
+              await locationAction(locationAccess);
+            },
+          },
+          {
+            label: 'Location: service',
+            shown: Platform.OS === 'android' || Platform.OS === 'web',
+            disabled: haveLocationAccess.service,
+            icon: Navigation,
+            onPress: async () => {
+              await locationAction(locationAccess);
+            },
+          },
+          {
+            label: 'Location: precise',
+            shown: Platform.OS === 'android' || Platform.OS === 'web',
+            disabled: haveLocationAccess.precise,
+            icon: Navigation,
+            onPress: async () => {
+              await locationAction(locationAccess);
+            },
+          },
+        ],
+      },
+      {
+        label: 'Notification',
+        options: [
+          {
+            label: 'Notification Permission',
+            shown: Platform.OS === 'android',
+            disabled: notificationPermission,
+            icon: MessageSquareDot,
+            onPress: async () => {
+              const res = await checkNotificationAccess(true);
+              setNotificationPermission(res);
+            },
+          },
+        ],
+      },
+      {
+        label: 'Tailscale',
+        options: [
+          {
+            label: 'Open Tailscale',
+            shown: Platform.OS === 'android',
+            icon: ExternalLink,
+            onPress: () => {
+              tsyncnativeModule.openTS();
+            },
+          },
+          {
+            label: 'Open Tailscale (Root)',
+            shown: Platform.OS === 'android',
+            icon: ExternalLink,
+            onPress: () => {
+              tsyncnativeModule.openTSRoot();
+            },
+          },
+          {
+            label: 'Connect Tailscale',
+            shown: Platform.OS === 'android',
+            icon: Plug,
+            onPress: () => {
+              tsyncnativeModule.connectTS();
+            },
+          },
+          {
+            label: 'Disconnect Tailscale',
+            shown: Platform.OS === 'android',
+            icon: X,
+            onPress: () => {
+              tsyncnativeModule.disconnectTS();
+            },
+          },
+        ],
+      },
+      {
+        label: 'Services',
+        options: [
+          {
+            label: 'Start Connection Service/Worker',
+            shown: Platform.OS === 'android',
+            icon: MessageSquareDot,
+            onPress: () => {
+              tsyncnativeModule.startConnectionWorker();
+            },
+          },
+          {
+            label: 'Start Battery Service/Worker',
+            shown: Platform.OS === 'android',
+            icon: MessageSquareDot,
+            onPress: () => {
+              tsyncnativeModule.startBatteryWorker();
+            },
+          },
+          {
+            label: 'Start Notification Listener Service',
+            shown: Platform.OS === 'android',
+            disabled: isNotificationListenerEnabled,
+            icon: Key,
+            onPress: () => {
+              tsyncnativeModule.startNotificationListenerService();
+            },
+          },
+        ],
+      },
+      {
+        label: 'Diagnostics / Tests / Debug',
+        options: [
+          {
+            label: 'Update isRooted (Root)',
+            shown: Platform.OS === 'android',
+            icon: Key,
+            onPress: () => {
+              const isRooted = useDeviceStore.getState().updateIsRooted();
+              showToast({
+                text1: 'Root check result',
+                text2: isRooted ? 'TRUE' : 'FALSE',
+              });
+            },
+          },
+        ],
+      },
+    ];
+  }, [
+    locationAccess,
+    isIgnoringBatteryOptimizations,
+    notificationPermission,
+    haveLocationAccess,
+    isNotificationListenerEnabled,
+  ]);
 
   return (
     <ScrollView flex={1} p={'$3'} bg={'$background'}>
       <YStack gap={'$4'}>
-        {/* POWER */}
-        <YGroup gap={'$0.5'}>
-          {isAndroid ? (
-            <Button
-              justify="flex-start"
-              icon={SmartphoneCharging}
-              disabled={isIgnoringBatteryOptimizations}
-              opacity={isIgnoringBatteryOptimizations ? 0.5 : 1}
-              onPress={() => {
-                const res = tsyncnativeModule.disableOptimizationsRoot();
-                if (__DEV__) console.log('disableOptimizationsRoot', res);
-
-                tsyncnativeModule.disableBatteryOptimizations();
-              }}>
-              Disable Battery Optimizations
-            </Button>
-          ) : null}
-        </YGroup>
-
-        {/* GPS */}
-        <YGroup gap={'$0.5'}>
-          <Button
-            justify="flex-start"
-            icon={Navigation}
-            disabled={haveLocationAccess.permission}
-            opacity={haveLocationAccess.permission ? 0.5 : 1}
-            onPress={async () => {
-              await locationAction(locationAccess);
-            }}>
-            Location: permission
-          </Button>
-          <Button
-            justify="flex-start"
-            icon={Navigation}
-            disabled={haveLocationAccess.service}
-            opacity={haveLocationAccess.service ? 0.5 : 1}
-            onPress={async () => {
-              await locationAction(locationAccess);
-            }}>
-            Location: service
-          </Button>
-          <Button
-            justify="flex-start"
-            icon={Navigation}
-            disabled={haveLocationAccess.precise}
-            opacity={haveLocationAccess.precise ? 0.5 : 1}
-            onPress={async () => {
-              await locationAction(locationAccess);
-            }}>
-            Location: precise
-          </Button>
-        </YGroup>
-
-        {/* NOTIF */}
-        <YGroup gap={'$0.5'}>
-          <Button
-            justify="flex-start"
-            icon={MessageSquareDot}
-            disabled={notificationPermission}
-            opacity={notificationPermission ? 0.5 : 1}
-            onPress={async () => {
-              const res = await checkNotificationAccess(true);
-              setNotificationPermission(res);
-            }}>
-            Notification Permission
-          </Button>
-        </YGroup>
-
-        <View height={32} />
-
-        {/*  */}
-        <YGroup gap={'$0.5'}>
-          <Button
-            justify="flex-start"
-            icon={ExternalLink}
-            onPress={async () => {
-              tsyncnativeModule.openTS();
-            }}>
-            Open Tailscale
-          </Button>
-
-          {isAndroid ? (
-            <Button
-              justify="flex-start"
-              icon={ExternalLink}
-              onPress={async () => {
-                tsyncnativeModule.openTSRoot();
-              }}>
-              Open Tailscale (Root)
-            </Button>
-          ) : null}
-
-          <Button
-            justify="flex-start"
-            icon={Plug}
-            onPress={async () => {
-              tsyncnativeModule.connectTS();
-            }}>
-            Connect Tailscale
-          </Button>
-
-          <Button
-            justify="flex-start"
-            icon={X}
-            onPress={async () => {
-              tsyncnativeModule.disconnectTS();
-            }}>
-            Disconnect Tailscale
-          </Button>
-
-          <Button
-            justify="flex-start"
-            icon={MessageSquareDot}
-            onPress={async () => {
-              tsyncnativeModule.startConnectionWorker();
-            }}>
-            Start Connection Service/Worker
-          </Button>
-
-          <Button
-            justify="flex-start"
-            icon={MessageSquareDot}
-            onPress={async () => {
-              tsyncnativeModule.startBatteryWorker();
-            }}>
-            Start Battery Service/Worker
-          </Button>
-
-          <Button
-            justify="flex-start"
-            icon={Key}
-            disabled={isNotificationListenerEnabled}
-            opacity={isNotificationListenerEnabled ? 0.5 : 1}
-            onPress={() => tsyncnativeModule.startNotificationListenerService()}>
-            Start Notification Listener Service
-          </Button>
-        </YGroup>
-
-        {/*  */}
-        {isAndroid ? (
-          <YGroup gap={'$0.5'}>
-            <Button justify="flex-start" icon={Key} onPress={() => useDeviceStore.getState().updateIsRooted()}>
-              Check isRooted (Root)
-            </Button>
-          </YGroup>
-        ) : null}
+        {appStatuses.map((row) => {
+          return (
+            <Section label={row.label} key={row.label}>
+              <YGroup gap={'$0.5'}>
+                {row.options.map((opt) => {
+                  if (!opt.shown) return null;
+                  return (
+                    <Button
+                      key={opt.label}
+                      justify="flex-start"
+                      icon={opt.icon}
+                      disabled={opt.disabled}
+                      opacity={opt.disabled ? 0.5 : 1}
+                      onPress={opt.onPress}>
+                      {opt.label}
+                    </Button>
+                  );
+                })}
+              </YGroup>
+            </Section>
+          );
+        })}
       </YStack>
 
       <View height={180} />

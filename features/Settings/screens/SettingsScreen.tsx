@@ -1,16 +1,8 @@
 import { useThemeStore } from '@/store/themeStore';
 import { SheetManager } from 'react-native-actions-sheet';
-import { Button, Text, View, YGroup, Switch } from 'tamagui';
+import { Button, Text, View, YGroup } from 'tamagui';
 import { useAlertSettings } from '../hooks/settings';
-
-const Section: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => {
-  return (
-    <View gap="$2">
-      <Text fontSize={'$3'}>{label}</Text>
-      {children}
-    </View>
-  );
-};
+import Section from '@/components/Section';
 
 const SettingsScreen = () => {
   const theme = useThemeStore((s) => s.theme);

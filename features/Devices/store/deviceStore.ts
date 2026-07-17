@@ -18,7 +18,7 @@ interface DeviceStoreState {
   setThisTailscaleDevice: (device: TailscaleDevice) => void;
 
   isRooted: boolean;
-  updateIsRooted: () => void;
+  updateIsRooted: () => boolean;
 
   updateBatteryStatus: () => Promise<boolean>;
 }
@@ -47,6 +47,8 @@ export const useDeviceStore = create<DeviceStoreState>((set, get) => ({
     }
 
     set({ isRooted: res });
+
+    return res;
   },
 
   updateBatteryStatus: async () => {
