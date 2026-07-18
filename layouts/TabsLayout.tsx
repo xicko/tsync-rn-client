@@ -24,7 +24,7 @@ export default function TabsLayout() {
 
   useEffect(function checkBatteryOptimizations() {
     const callback = async () => {
-      if (Platform.OS === 'web') return;
+      if (Platform.OS === 'web' || Platform.OS === 'ios') return;
       await new Promise((resolve) => setTimeout(resolve, 500));
       const res = tsyncnativeModule.isIgnoringBatteryOptimizations();
       if (!res) {
