@@ -25,6 +25,8 @@ declare class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
 
   isNotificationListenerEnabled(): boolean;
   startNotificationListenerService(): void;
+
+  retrieveApps(): string;
 }
 
 // This call loads the native module object from the JSI.

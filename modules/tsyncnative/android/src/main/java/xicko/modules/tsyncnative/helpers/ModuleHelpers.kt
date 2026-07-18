@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.BatteryManager
 import android.os.PowerManager
 import android.provider.Settings
@@ -12,6 +13,9 @@ import androidx.core.net.toUri
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import xicko.modules.tsyncnative.data.AppInfo
 import xicko.modules.tsyncnative.data.BatteryStatus
 import xicko.modules.tsyncnative.services.NotificationListenerServiceImpl
 
@@ -84,13 +88,13 @@ fun openTSRoot() {
 fun connectTSRoot() {
     val task = Shell.cmd("""
         su -c am start -n com.tailscale.ipn/.MainActivity
-        
+
         sleep 3
-        
+
         su -c am broadcast -a com.tailscale.ipn.CONNECT_VPN -n com.tailscale.ipn/.MainActivity
-        
+
         sleep 2
-        
+
         su -c am start -n com.xicko.tsync/.MainActivity
     """.trimIndent())
 
@@ -104,11 +108,11 @@ fun disableOptimizationsRoot(context: Context, packageName: String?): Boolean {
 
     val cmd = Shell.cmd("""
         su -c dumpsys deviceidle whitelist +$pn
-        
+
         su -c cmd appops set $pn RUN_ANY_IN_BACKGROUND allow
-        
+
         su -c cmd appops set $pn RUN_IN_BACKGROUND allow
-        
+
         su -c am set-standby-bucket $pn active
     """.trimIndent())
 
@@ -201,4 +205,30 @@ fun startNotificationListenerService(ctx: Context?) {
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
     ctx?.startActivity(intent)
+}
+
+fun retrieveApps(ctx: Context?): String {
+  val appList = mutableListOf<AppInfo>()
+  try {
+    val packageManager = ctx?.packageManager
+
+    val flags = PackageManager.GET_META_DATA
+    val installedApps = packageManager?.getInstalledApplications(flags)
+
+    if (installedApps != null) {
+      for (appInfo in installedApps) {
+        appList.add(
+          AppInfo(
+            appInfo.loadLabel(packageManager).toString(),
+            appInfo.packageName,
+          )
+        )
+      }
+    }
+
+    return Json.encodeToString(appList)
+  } catch (e: Exception) {
+    e.message?.let { Log.d("retrieveApps error:", it) }
+    return ""
+  }
 }

@@ -47,14 +47,18 @@ export default function TabsLayout() {
   const headerStyle = { backgroundColor: tamaguiTheme.background.val };
 
   // Block UI if headless
-  const [isHeadless, setIsHeadless] = useState<boolean>(false);
-  useEffect(function handleHeadless() {
-    const HEADLESS = Constants.default.expoConfig?.extra?.EXPO_PUBLIC_HEADLESS_STR;
-    if (HEADLESS && String(Device.modelName).toLowerCase().includes(HEADLESS)) {
-      setIsHeadless(true);
-      tsyncnativeModule.connectTSRoot();
-    }
-  }, []);
+  const [isHeadless] = useState<boolean>(
+    (() => {
+      const HEADLESS = Constants.default.expoConfig?.extra?.EXPO_PUBLIC_HEADLESS_STR;
+      return !!(HEADLESS && String(Device.modelName).toLowerCase().includes(HEADLESS));
+    })()
+  );
+  useEffect(
+    function handleHeadless() {
+      if (isHeadless) tsyncnativeModule.connectTSRoot();
+    },
+    [isHeadless]
+  );
   if (isHeadless) return null;
 
   return (
@@ -117,10 +121,10 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="appstatus"
+        name="appcontrol"
         options={{
           headerShown: true,
-          headerTitle: 'App Status',
+          headerTitle: 'App Control',
           headerTitleStyle: headerTitleStyle,
           headerTitleAlign: 'center',
           headerStyle: headerStyle,

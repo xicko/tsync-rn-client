@@ -14,17 +14,18 @@ class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
   isIgnoringBatteryOptimizations() {}
   disableBatteryOptimizations() {}
 
+  startConnectionWorker(): void {}
+  startBatteryWorker(): void {}
+
   openTS(): void {}
   connectTS(): void {}
   disconnectTS(): void {}
-
-  startConnectionWorker(): void {}
-  startBatteryWorker(): void {}
 
   isRooted(): boolean {
     return false;
   }
   openTSRoot(): void {}
+  connectTSRoot(): void {}
 
   disableOptimizationsRoot(packageName?: string): boolean {
     return false;
@@ -40,6 +41,10 @@ class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
     return false;
   }
   startNotificationListenerService(): void {}
+
+  retrieveApps(): string {
+    return '';
+  }
 }
 
 export default registerWebModule(tsyncnativeModule, 'tsyncnativeModule');

@@ -13,6 +13,7 @@ import { NotificationsSyncDenylist } from '@/features/NotificationsSync/types/de
 import DenylistCreationSheet from '@/features/NotificationsSync/components/Sheets/DenylistCreationSheet';
 import AlertToggleSheet from '../../features/Settings/components/Sheets/AlertToggleSheet';
 import AlertDenylistEditorSheet from '../../features/Settings/components/Sheets/AlertDenylistEditorSheet';
+import InstalledAppsSheet from './InstalledAppsSheet';
 
 declare module 'react-native-actions-sheet' {
   interface Sheets {
@@ -76,6 +77,10 @@ declare module 'react-native-actions-sheet' {
     'alert-denylist-editor-sheet': SheetDefinition<{
       payload: {};
     }>;
+
+    'installed-apps-sheet': SheetDefinition<{
+      payload: {};
+    }>;
   }
 }
 
@@ -95,6 +100,7 @@ export const Sheets = () => {
         'denylist-creation-sheet': DenylistCreationSheet,
         'alert-toggle-sheet': AlertToggleSheet,
         'alert-denylist-editor-sheet': AlertDenylistEditorSheet,
+        'installed-apps-sheet': InstalledAppsSheet,
       }}
     />
   );

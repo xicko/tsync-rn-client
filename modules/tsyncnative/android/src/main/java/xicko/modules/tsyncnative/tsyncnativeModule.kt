@@ -1,6 +1,9 @@
 package xicko.modules.tsyncnative
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.util.Log
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -12,9 +15,11 @@ import com.topjohnwu.superuser.Shell
 import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import xicko.modules.tsyncnative.helpers.*
 import java.util.concurrent.TimeUnit
-
 
 
 
@@ -168,6 +173,11 @@ class tsyncnativeModule : Module() {
     Function("startNotificationListenerService") {
       val context = appContext.reactContext
       startNotificationListenerService(context)
+    }
+
+    Function("retrieveApps") {
+      val context = appContext.reactContext
+      retrieveApps(context)
     }
   }
 }
