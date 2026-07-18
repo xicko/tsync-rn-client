@@ -43,10 +43,43 @@ import { SheetManager } from 'react-native-actions-sheet';
 import { Image as ExpoImage } from 'expo-image';
 import { ShellEventPayload } from '@/types/shell.interface';
 
+const QuickActionButton = ({
+  icon,
+  label,
+  onPress,
+  theme,
+  bg,
+}: {
+  icon: any;
+  label: string;
+  onPress: () => void;
+  theme?: any;
+  bg?: GetThemeValueForKey<'backgroundColor'> | OpaqueColorValue | null | undefined;
+}) => (
+  <Button
+    aspectRatio={1}
+    flex={1}
+    icon={icon}
+    flexDirection="column"
+    height={70}
+    p={0}
+    theme={theme}
+    onPress={onPress}
+    bg={bg}
+    rounded="$4">
+    <Text fontSize="$1" mt={-4}>
+      {label}
+    </Text>
+  </Button>
+);
+
+type TabType = 'terminal' | 'actions' | 'tools';
+
 const ShellScreen = () => {
   const socket = useSocketStore((s) => s.socket);
 
   const [selectedDevice, setSelectedDevice] = useState<TailscaleDevice | null>(null);
+  const [selectedTab, setSelectedTab] = useState<TabType>('terminal');
 
   const [input, setInput] = useState<string>('');
   const [unlockPassword, setUnlockPassword] = useState<string>('');
@@ -126,36 +159,6 @@ const ShellScreen = () => {
     };
   }, [socket]);
 
-  const QuickActionButton = ({
-    icon,
-    label,
-    onPress,
-    theme,
-    bg,
-  }: {
-    icon: any;
-    label: string;
-    onPress: () => void;
-    theme?: any;
-    bg?: GetThemeValueForKey<'backgroundColor'> | OpaqueColorValue | null | undefined;
-  }) => (
-    <Button
-      aspectRatio={1}
-      flex={1}
-      icon={icon}
-      flexDirection="column"
-      height={70}
-      p={0}
-      theme={theme}
-      onPress={onPress}
-      bg={bg}
-      rounded="$4">
-      <Text fontSize="$1" mt={-4}>
-        {label}
-      </Text>
-    </Button>
-  );
-
   const onDeviceSelector = () => {
     SheetManager.show('shell-device-selector-sheet', {
       payload: {
@@ -196,15 +199,36 @@ const ShellScreen = () => {
           </XStack>
         </Button>
 
-        <Tabs defaultValue="terminal" flexDirection="column" orientation="horizontal" flex={1} activationMode="manual">
+        <Tabs
+          defaultValue="terminal"
+          flexDirection="column"
+          orientation="horizontal"
+          flex={1}
+          activationMode="manual"
+          onValueChange={(val) => setSelectedTab(val as TabType)}>
           <Tabs.List bg="$background" rounded={0} borderBottomWidth={1} borderBottomColor="$borderColor">
-            <Tabs.Tab value="terminal" flex={1}>
+            <Tabs.Tab
+              value="terminal"
+              flex={1}
+              pressStyle={{ bg: 'transparent' }}
+              borderBottomWidth={selectedTab === 'terminal' ? 1 : 0}
+              borderBottomColor="$color12">
               <SizableText>Terminal</SizableText>
             </Tabs.Tab>
-            <Tabs.Tab value="actions" flex={1}>
+            <Tabs.Tab
+              value="actions"
+              flex={1}
+              pressStyle={{ bg: 'transparent' }}
+              borderBottomWidth={selectedTab === 'actions' ? 1 : 0}
+              borderBottomColor="$color12">
               <SizableText>Actions</SizableText>
             </Tabs.Tab>
-            <Tabs.Tab value="tools" flex={1}>
+            <Tabs.Tab
+              value="tools"
+              flex={1}
+              pressStyle={{ bg: 'transparent' }}
+              borderBottomWidth={selectedTab === 'tools' ? 1 : 0}
+              borderBottomColor="$color12">
               <SizableText>Tools</SizableText>
             </Tabs.Tab>
           </Tabs.List>
