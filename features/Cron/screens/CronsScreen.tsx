@@ -1,11 +1,11 @@
-import { FlatList, RefreshControl, Alert } from 'react-native';
-import { Button, Spinner, Text, View, XStack, YStack, Switch } from 'tamagui';
+import { FlatList, RefreshControl, Alert, Platform } from 'react-native';
+import { Button, Spinner, Text, View, XStack, YStack, Switch, YGroup } from 'tamagui';
 import dayjs from 'dayjs';
 import { useCrons, useToggleCron, useTriggerCron, useDeleteCron, useReinitCrons } from '@/features/Cron/hooks/crons';
 import { CronJobInfo } from '@/features/Cron/controller/cronController';
 import { showToast } from '@/utils/toast';
 import { SheetManager } from 'react-native-actions-sheet';
-import { RefreshCcw } from '@tamagui/lucide-icons';
+import { Plus, RefreshCcw } from '@tamagui/lucide-icons';
 
 export default function CronsScreen() {
   const { data: crons = [], isLoading, isRefetching, refetch } = useCrons();
@@ -13,6 +13,8 @@ export default function CronsScreen() {
   const triggerCronMutation = useTriggerCron();
   const deleteCronMutation = useDeleteCron();
   const reinitMutation = useReinitCrons();
+
+  const isWeb = Platform.OS === 'web';
 
   const onRefresh = () => {
     refetch();
@@ -70,37 +72,7 @@ export default function CronsScreen() {
         keyExtractor={(item) => item.name}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />}
         contentContainerStyle={{ padding: 13, gap: 13 }}
-        ListHeaderComponent={
-          <YStack gap="$3" mb="$2">
-            <XStack gap="$2" width="100%">
-              <Button
-                aspectRatio={1}
-                bg="transparent"
-                borderWidth={1}
-                borderColor="$borderColor"
-                onPress={() => {
-                  Alert.alert('Re-init System', 'Are you sure you want to re-init system crons?', [
-                    { text: 'Cancel', style: 'cancel' },
-                    {
-                      text: 'Re-init',
-                      style: 'destructive',
-                      onPress: () => {
-                        reinitMutation.mutate(undefined, {
-                          onSuccess: () => showToast({ text1: 'System Crons Reinitialized' }),
-                          onError: () => showToast({ text1: 'System Reinit failed' }),
-                        });
-                      },
-                    },
-                  ]);
-                }}
-                icon={RefreshCcw}
-              />
-              <Button flex={1} onPress={() => SheetManager.show('cron-create-sheet')} themeInverse>
-                + Add New Cron
-              </Button>
-            </XStack>
-          </YStack>
-        }
+        ListFooterComponent={<View height={120} />}
         renderItem={({ item }) => (
           <YStack bg="$background" borderColor={'$borderColor'} borderWidth={1} p="$4" rounded="$4" gap="$2">
             <XStack justify="space-between" items="center">
@@ -143,6 +115,36 @@ export default function CronsScreen() {
           </YStack>
         )}
       />
+
+      <YGroup position="absolute" r={24} b={24}>
+        <Button
+          themeInverse
+          aspectRatio={1}
+          icon={<RefreshCcw scale={isWeb ? 2 : undefined} />}
+          onPress={() => {
+            Alert.alert('Re-init System', 'Are you sure you want to re-init system crons?', [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Re-init',
+                style: 'destructive',
+                onPress: () => {
+                  reinitMutation.mutate(undefined, {
+                    onSuccess: () => showToast({ text1: 'System Crons Reinitialized' }),
+                    onError: () => showToast({ text1: 'System Reinit failed' }),
+                  });
+                },
+              },
+            ]);
+          }}
+        />
+
+        <Button
+          themeInverse
+          aspectRatio={1}
+          icon={<Plus scale={isWeb ? 2 : undefined} />}
+          onPress={() => SheetManager.show('cron-create-sheet')}
+        />
+      </YGroup>
     </View>
   );
 }
