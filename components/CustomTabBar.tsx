@@ -115,11 +115,11 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
   const getActiveTab = () => {
     const pathToTab = {
       '/tabs/devices': 'devices',
-      '/tabs/crons': 'crons',
-      '/tabs/shell': 'shell',
-      '/tabs/appstatus': 'appstatus',
-      '/tabs/message': 'message',
       '/tabs/notifications': 'notifications',
+      '/tabs/appcontrol': 'appcontrol',
+      '/tabs/shell': 'shell',
+      '/tabs/message': 'message',
+      '/tabs/crons': 'crons',
     } as const;
     return pathToTab[pathname as keyof typeof pathToTab] || state.routeNames[state.index];
   };
@@ -152,11 +152,19 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
         />
 
         <TabItem
-          label="Crons"
-          icon={<Clock strokeWidth={1.3} color={'$color7'} />}
-          activeIcon={<Clock />}
-          isActive={activeTab === 'crons'}
-          onPress={() => handleTabPress('crons')}
+          label="Notifications"
+          icon={<Bell strokeWidth={1.3} color={'$color7'} />}
+          activeIcon={<Bell />}
+          isActive={activeTab === 'notifications'}
+          onPress={() => handleTabPress('notifications')}
+        />
+
+        <TabItem
+          label="App Control"
+          icon={<Layers2 strokeWidth={1.3} color={'$color7'} />}
+          activeIcon={<Layers2 />}
+          isActive={activeTab === 'appcontrol'}
+          onPress={() => handleTabPress('appcontrol')}
         />
 
         <TabItem
@@ -168,14 +176,6 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
         />
 
         <TabItem
-          label="App Status"
-          icon={<Layers2 strokeWidth={1.3} color={'$color7'} />}
-          activeIcon={<Layers2 />}
-          isActive={activeTab === 'appstatus'}
-          onPress={() => handleTabPress('appstatus')}
-        />
-
-        <TabItem
           label="Message"
           icon={<MessageCircle strokeWidth={1.3} color={'$color7'} />}
           activeIcon={<MessageCircle />}
@@ -184,11 +184,11 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
         />
 
         <TabItem
-          label="Notifications"
-          icon={<Bell strokeWidth={1.3} color={'$color7'} />}
-          activeIcon={<Bell />}
-          isActive={activeTab === 'notifications'}
-          onPress={() => handleTabPress('notifications')}
+          label="Crons"
+          icon={<Clock strokeWidth={1.3} color={'$color7'} />}
+          activeIcon={<Clock />}
+          isActive={activeTab === 'crons'}
+          onPress={() => handleTabPress('crons')}
         />
       </XStack>
     </ScrollView>

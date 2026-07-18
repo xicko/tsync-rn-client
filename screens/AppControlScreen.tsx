@@ -10,6 +10,7 @@ import {
   locationAction,
 } from '@/utils/locationAccessUtils';
 import {
+  AppWindow,
   Battery,
   ExternalLink,
   Key,
@@ -17,6 +18,9 @@ import {
   MessageSquareDot,
   Navigation,
   Plug,
+  RefreshCcw,
+  RefreshCw,
+  Smartphone,
   SmartphoneCharging,
   Wifi,
   X,
@@ -26,8 +30,9 @@ import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import { IconProps } from '@tamagui/helpers-icon';
 import Section from '@/components/Section';
 import { showToast } from '@/utils/toast';
+import { SheetManager } from 'react-native-actions-sheet';
 
-interface AppStatusRow {
+interface AppControlRow {
   label: string;
   options: {
     label: string;
@@ -38,7 +43,7 @@ interface AppStatusRow {
   }[];
 }
 
-const AppStatusScreen = () => {
+const AppControlScreen = () => {
   const isRooted = useDeviceStore((s) => s.isRooted);
 
   const [isIgnoringBatteryOptimizations, setIsIgnoringBatteryOptimizations] = useState<boolean>(false);
@@ -115,7 +120,7 @@ const AppStatusScreen = () => {
     };
   }, [locationAccess]);
 
-  const appStatuses: AppStatusRow[] = useMemo(() => {
+  const appControls: AppControlRow[] = useMemo(() => {
     return [
       {
         label: 'Power',
@@ -157,7 +162,7 @@ const AppStatusScreen = () => {
           },
           {
             label: 'Location: precise',
-            shown: Platform.OS === 'android' || Platform.OS === 'web',
+            shown: Platform.OS === 'android',
             disabled: haveLocationAccess.precise,
             icon: Navigation,
             onPress: async () => {
@@ -188,33 +193,25 @@ const AppStatusScreen = () => {
             label: 'Open Tailscale',
             shown: Platform.OS === 'android',
             icon: ExternalLink,
-            onPress: () => {
-              tsyncnativeModule.openTS();
-            },
+            onPress: () => tsyncnativeModule.openTS(),
           },
           {
             label: 'Open Tailscale (Root)',
             shown: Platform.OS === 'android' && isRooted,
             icon: ExternalLink,
-            onPress: () => {
-              tsyncnativeModule.openTSRoot();
-            },
+            onPress: () => tsyncnativeModule.openTSRoot(),
           },
           {
             label: 'Connect Tailscale',
             shown: Platform.OS === 'android',
             icon: Plug,
-            onPress: () => {
-              tsyncnativeModule.connectTS();
-            },
+            onPress: () => tsyncnativeModule.connectTS(),
           },
           {
             label: 'Disconnect Tailscale',
             shown: Platform.OS === 'android',
             icon: X,
-            onPress: () => {
-              tsyncnativeModule.disconnectTS();
-            },
+            onPress: () => tsyncnativeModule.disconnectTS(),
           },
         ],
       },
@@ -252,6 +249,12 @@ const AppStatusScreen = () => {
         label: 'Diagnostics / Tests / Debug',
         options: [
           {
+            label: 'Reload',
+            shown: Platform.OS === 'android' || Platform.OS === 'web',
+            icon: RefreshCcw,
+            onPress: () => tsyncnativeModule.reloadApp(),
+          },
+          {
             label: 'Update isRooted (Root)',
             shown: Platform.OS === 'android',
             icon: Key,
@@ -261,6 +264,14 @@ const AppStatusScreen = () => {
                 text1: 'Root check result',
                 text2: isRooted ? 'TRUE' : 'FALSE',
               });
+            },
+          },
+          {
+            label: 'Query installed apps',
+            shown: Platform.OS === 'android',
+            icon: Smartphone,
+            onPress: () => {
+              SheetManager.show('installed-apps-sheet');
             },
           },
         ],
@@ -278,7 +289,9 @@ const AppStatusScreen = () => {
   return (
     <ScrollView flex={1} p={'$3'} bg={'$background'}>
       <YStack gap={'$4'}>
-        {appStatuses.map((row) => {
+        {appControls.map((row) => {
+          const hasOptions = row.options.length !== 0 && row.options.some((o) => o.shown === true);
+          if (!hasOptions) return;
           return (
             <Section label={row.label} key={row.label}>
               <YGroup gap={'$0.5'}>
@@ -307,4 +320,4 @@ const AppStatusScreen = () => {
   );
 };
 
-export default AppStatusScreen;
+export default AppControlScreen;
