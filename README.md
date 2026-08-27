@@ -14,6 +14,8 @@
 
 ---
 
+## notice: this project was discontinued and migrated on 2026-08-27 due to a new electron.js cross-platform implementation. please check out the new repo [tsync-client](https://github.com/xicko/tsync-client).
+
 ## features
 
 - **real-time status**: access device statuses instantly across your tailnet.
